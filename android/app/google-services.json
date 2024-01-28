@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "5955824795",
+    "project_id": "ultimate-ba724",
+    "storage_bucket": "ultimate-ba724.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:5955824795:android:b6dd7d888562ce3e4caa3e",
+        "android_client_info": {
+          "package_name": "com.example.ultimatesolutions"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDX4wCvNP9phScVkiR4P7bSD8IpdTvPdRg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
