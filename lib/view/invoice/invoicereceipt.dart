@@ -87,12 +87,19 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
   }
 
 
-
-
-
-
   Future<void> _generatePDF(Map<String, dynamic> data) async {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Generating PDF...'),
+        duration: Duration(seconds: 1), // Adjust the duration as needed
+      ),
+    );
+
+
     final pdf = pw.Document();
+
+
 
     final fontData = await rootBundle.load("lib/assets/fonts/Poppins-Regular.ttf");
     final ttfFont = pw.Font.ttf(fontData);
@@ -123,7 +130,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
       return pw.TableRow(
         children: rowData.map((cellData) {
           return pw.Container(
-            padding: pw.EdgeInsets.all(8.0),
+            padding: pw.EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0), // Increase horizontal padding
             decoration: isHeader ? pw.BoxDecoration(color: pw.PdfColors.blue50) : null,
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -133,8 +140,6 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
         }).toList(),
       );
     }
-
-
 
 
     pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false}) {
@@ -213,13 +218,11 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
         product['quantity']?.toString() ?? '',
         product['unit'] ?? '',
         product['price']?.toString() ?? '',
-        product['taxAmount']?.toString() ?? '',
-        product['lineTotal']?.toString() ?? '',
+        (product['taxAmount'] ?? 0.0).toStringAsFixed(2), // Formatting VAT to one decimal place
+        (product['lineTotal']?? 0.0).toStringAsFixed(2),
       ]));
+
     }
-
-
-
 
     pw.Image headerImage = pw.Image(
       pw.MemoryImage(
@@ -232,113 +235,6 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
         (await rootBundle.load('lib/assets/footer.png')).buffer.asUint8List(),
       ),
     );
-
-    pw.Widget _buildGrossAmountSection(Map<String, dynamic> data) {
-      return pw.Container(
-        margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        child: pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Expanded(
-              flex: 1,
-              child: pw.Text(
-                'Gross Amount:',
-                style: pw.TextStyle(font: ttfFont, fontSize: 16,decoration: pw.TextDecoration.underline,),
-              ),
-            ),
-            pw.Expanded(
-              flex: 3,
-              child: pw.Row(
-                children: [
-                  pw.Text(
-                    data['totalWithoutVat']?.toString() ?? '',
-                    style: pw.TextStyle(font: ttfFontBold, fontSize: 16),
-                  ),
-                  pw.Text(
-                    ' SAR',
-                    style: pw.TextStyle(font: ttfFontBold, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-
-
-
-    pw.Widget _buildtaxAmountSection(Map<String, dynamic> data) {
-      return pw.Container(
-        margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        child: pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Expanded(
-              flex: 1,
-              child: pw.Text(
-                'Total Vat(15)%:',
-                style: pw.TextStyle(font: ttfFont, fontSize: 16,decoration: pw.TextDecoration.underline,),
-              ),
-            ),
-            pw.Expanded(
-              flex: 3,
-              child: pw.Row(
-                children: [
-                  pw.Text(
-                    data['taxAmount']?.toString() ?? '',
-                    style: pw.TextStyle(font: ttfFontBold, fontSize: 16),
-                  ),
-                  pw.Text(
-                    ' SAR',
-                    style: pw.TextStyle(font: ttfFontBold, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-
-
-
-
-
-    pw.Widget _buildNetAmountSection(Map<String, dynamic> data) {
-      return pw.Container(
-        margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        child: pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Expanded(
-              flex: 1,
-              child: pw.Text(
-                'Net Amount:',
-                style: pw.TextStyle(font: ttfFont, fontSize: 16,decoration: pw.TextDecoration.underline,),
-              ),
-            ),
-            pw.Expanded(
-              flex: 3,
-              child: pw.Row(
-                children: [
-                  pw.Text(
-                    data['netAmount']?.toString() ?? '',
-                    style: pw.TextStyle(font: ttfFontBold, fontSize: 16),
-                  ),
-                  pw.Text(
-                    ' SAR',
-                    style: pw.TextStyle(font: ttfFontBold, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
 
 
     String capitalizeWords(String input) {
@@ -357,32 +253,6 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
       return capitalizeWords(netAmountInWords) + ' Saudi Riyals';
     }
 
-    pw.Widget _buildNetAmountInWordsSection(Map<String, dynamic> data) {
-      return pw.Container(
-        margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        child: pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Expanded(
-              flex: 1,
-              child: pw.Text(
-                'In Words:',
-                style: pw.TextStyle(font: ttfFont, fontSize: 16,decoration: pw.TextDecoration.underline,),
-              ),
-            ),
-            pw.Expanded(
-              flex: 3,
-              child: pw.Text(
-                _getNetAmountInWords(data),
-                style: pw.TextStyle(font: ttfFontBold, fontSize: 16),
-              ),
-            ),
-          ],
-        ),
-      );
-
-
-    }
 
 
     // Fetch the QR code image URL from Firestore data
@@ -488,10 +358,12 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
             //   _buildNetAmountInWordsSection(data),
 
 
-              // ... (your existing code)
+
               pw.Padding(
                 padding: pw.EdgeInsets.symmetric(horizontal: 70.0),
                 child: pw.Container(
+
+                  height: 200,
                 //  margin: pw.EdgeInsets.only(top: 10.0), // Adjust the top margin as needed
                   child: pw.Table(
 
@@ -502,8 +374,9 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                         children: [
                           _buildTableCell('Gross Amount:'),
                           _buildTableCell(
-                            data['totalWithoutVat']?.toString() ?? '',
+                            (double.parse(data['totalWithoutVat']?.toString() ?? '0')).toStringAsFixed(2),
                           ),
+
                         ],
                       ),
                       // Total VAT(15%) Row
@@ -537,34 +410,14 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                   ),
                 ),
               ),
-
-// ... (your existing code)
-
-
-             // pw.SizedBox(height: 10),
-
-          // pw.Container(
-          // margin: pw.EdgeInsets.symmetric(horizontal: 20),
-          // child: pw.Container(
-          // margin: pw.EdgeInsets.symmetric(vertical: 5),
-          // color: pw.PdfColors.blue50,
-          // height: 5,
-          // ),
-          // ),
               pw.Center(
                 child: qrCodeImage,
               ),
-
-
 
               pw.Expanded(
                 flex: 1,
                 child: pw.SizedBox(),
               ),
-
-
-
-
               pw.Padding(
                 padding: pw.EdgeInsets.only(left: 20, top: 10),
                 child: pw.Row(
@@ -601,6 +454,8 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
       ),
     );
 
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
     final Uint8List pdfBytes = await pdf.save();
 
     await printing.Printing.layoutPdf(onLayout: (format) => pdfBytes);
@@ -634,21 +489,53 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
           return ListView.builder(
             itemCount: documents.length,
             itemBuilder: (context, index) {
-              var data = documents[index].data() as Map<String, dynamic>;
+              var sortedDocuments = documents.toList()
+                ..sort((a, b) => (b['invoiceNo'] as String).compareTo(a['invoiceNo'] as String));
+              var data = sortedDocuments[index].data() as Map<String, dynamic>;
               return Card(
-                elevation: 2.0,
-                margin: EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text(data['invoiceNo']),
-                  subtitle: Text(data['customerName']),
-                  trailing: ElevatedButton(
-                    onPressed: () async => await _generatePDF(data),
-                    child: Text('Generate PDF'),
+                elevation: 4.0,
+                margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: InkWell(
+                  onTap: () async => await _generatePDF(data),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Invoice No: ${data['invoiceNo']}',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8.0),
+                        Text(
+                          'Customer: ${data['customerName']}',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                        SizedBox(height: 8.0),
+                        Text(
+                          'Date: ${data['invoiceDate']}',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
             },
           );
+
         },
       ),
     );
