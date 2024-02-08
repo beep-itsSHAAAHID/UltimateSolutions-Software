@@ -1,17 +1,17 @@
-import 'package:UltimateSolutions/view/addactivity.dart';
+import 'package:UltimateSolutions/view/activity/addactivity.dart';
 import 'package:UltimateSolutions/view/print.dart';
-import 'package:UltimateSolutions/view/purchase.dart';
-import 'package:UltimateSolutions/view/rfq.dart';
-import 'package:UltimateSolutions/view/viewallactivities.dart';
+import 'package:UltimateSolutions/view/products/purchase.dart';
+import 'package:UltimateSolutions/view/quotation/rfq.dart';
+import 'package:UltimateSolutions/view/activity/viewallactivities.dart';
 import 'package:flutter/material.dart';
 
 
-import 'addcustomer.dart';
+import 'customer/addcustomer.dart';
 import 'checkout.dart';
 import 'credits.dart';
-import 'delivery.dart';
+import 'delivery/delivery.dart';
 import 'followup.dart';
-import 'invoice.dart';
+import 'invoice/invoice.dart';
 
 class SalesNav extends StatefulWidget {
   SalesNav({Key? key, this.userEmail=''}) : super(key: key);
@@ -63,7 +63,7 @@ class _SalesNavState extends State<SalesNav> {
             children: [
               if (isAdmin)
                 buildMenuItem('Purchase', Purchase(userEmail: widget.userEmail), Icons.shopping_cart, Colors.blue),
-              if (isUser)
+              if (isAdmin)
                 buildMenuItem('Add Customer', AddCustomer(userEmail: widget.userEmail,), Icons.person_add, Colors.green),
               if (isAdmin)
                 buildMenuItem('RFQ', Rfq(userEmail: widget.userEmail), Icons.task, Colors.orange),

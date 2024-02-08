@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:UltimateSolutions/view/productselectionpage.dart';
-import 'package:UltimateSolutions/view/customerselection.dart';
+import 'package:UltimateSolutions/view/products/productselectionpage.dart';
+import 'package:UltimateSolutions/view/customer/customerselection.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 
 class AddActivity extends StatefulWidget {

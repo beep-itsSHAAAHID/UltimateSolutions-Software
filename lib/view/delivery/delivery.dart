@@ -1,108 +1,86 @@
-import 'package:UltimateSolutions/view/productselectionpage.dart';
-import 'package:flutter/material.dart';
+import 'package:UltimateSolutions/view/products/productselectionpage.dart';
+import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'customerselection.dart';
-import 'salesnav.dart';
+import 'package:flutter/material.dart';
+import 'package:UltimateSolutions/view/customer/customerselection.dart';
 
-class Rfq extends StatefulWidget {
+class Delivery extends StatefulWidget {
   final String userEmail;
 
-  const Rfq({Key? key, required this.userEmail}) : super(key: key);
+  const Delivery({Key? key, required this.userEmail}) : super(key: key);
 
   @override
-  State<Rfq> createState() => _RfqState();
+  _DeliveryState createState() => _DeliveryState();
 }
 
-class _RfqState extends State<Rfq> {
+class _DeliveryState extends State<Delivery> {
   TextEditingController _customerCodeController = TextEditingController();
   TextEditingController _customerNameController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
+  TextEditingController _deliveryNoteNoController = TextEditingController();
+  TextEditingController _poNoController = TextEditingController();
+  TextEditingController _refNoController = TextEditingController();
   TextEditingController _vatNoController = TextEditingController();
-  TextEditingController _entryDateController = TextEditingController();
-  TextEditingController _quotationNoController = TextEditingController();
-  TextEditingController _salesmanController = TextEditingController();
-  TextEditingController _enquiryReferenceController = TextEditingController();
-  TextEditingController _remarksController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  List<ProductControllerGroup> products = [ProductControllerGroup()]; // Initial product
 
-  List<Map<String, TextEditingController>> products = [
-    {'code': TextEditingController(), 'name': TextEditingController()},
-  ];
-
-  TextEditingController _validityController = TextEditingController();
-  TextEditingController _deliveryTimeController = TextEditingController();
-  TextEditingController _placeOfDeliveryController = TextEditingController();
+  // Define your unit dropdown values
+  List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece','Each','Box'];
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(70.0),
-          child: AppBar(
-            title: Text(
-              "QUOTATION",
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
-            ),
-            centerTitle: true,
-            backgroundColor: Color(0xff0C88BD),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(40),
-              ),
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(70.0),
+        child: AppBar(
+          title: Text(
+            "Enter Delivery",
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
+          ),
+          centerTitle: true,
+          backgroundColor: Color(0xff0C88BD),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(40),
             ),
           ),
         ),
-        body: SingleChildScrollView(
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10),
+              SizedBox(height: 16),
               buildCustomerField(context),
               buildTextField('Customer Name', _customerNameController, enabled: false),
               buildTextField('Address', _addressController),
-              buildTextField('Phone', _phoneController),
-              buildTextField('VAT No.', _vatNoController),
-              buildTextField('Entry Date', _entryDateController, showCalendarIcon: true),
-              buildTextField('Quotation No.', _quotationNoController),
-              buildTextField('Salesman', _salesmanController),
-              buildTextField('Enquiry Reference', _enquiryReferenceController),
-              buildTextField('Remarks', _remarksController),
-
-              // Products Fields
+              buildTextField('Phone No.', _phoneController),
+              buildTextField('Vat No.', _vatNoController),
+              buildTextField('Delivery Note No.', _deliveryNoteNoController),
+              buildTextField('PO No.', _poNoController),
+              buildTextField('REF No.', _refNoController),
+              buildTextField('Date', _dateController),
+              SizedBox(height: 16),
               for (int i = 0; i < products.length; i++) buildProductRow(i),
-
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    // Check if the last product has non-empty code and name
-                    if (products.isNotEmpty &&
-                        (products.last['code']?.text?.isNotEmpty == true ||
-                            products.last['name']?.text?.isNotEmpty == true)) {
-                      // Add a new product with empty code and name fields
-                      products.add({'code': TextEditingController(), 'name': TextEditingController()});
-                    }
+                    products.add(ProductControllerGroup());
                   });
                 },
                 child: Text('Add More Products'),
               ),
-
-              // Remaining Fields
-              buildTextField('Validity', _validityController),
-              buildTextField('Delivery Time', _deliveryTimeController),
-              buildTextField('Place of Delivery', _placeOfDeliveryController),
-
-              SizedBox(height: 10),
+              SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  // Submit logic here
-                  // Access entered values using controllers
-                  // Call your custom function to submit data
-                  submitDataToFirestore();
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: widget.userEmail)));
-                },
-                child: Text('Submit'),
+                onPressed: submitData,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.green,
+                ),
+                child: Icon(Icons.check),
               ),
             ],
           ),
@@ -165,7 +143,6 @@ class _RfqState extends State<Rfq> {
               _customerNameController.text = selectedCustomer['customerName'] ?? '';
               _addressController.text = selectedCustomer['address'] ?? '';
               _phoneController.text = selectedCustomer['mobileNumber'] ?? '';
-              _vatNoController.text = selectedCustomer['vtNumber'] ?? '';
             });
           }
         },
@@ -186,15 +163,12 @@ class _RfqState extends State<Rfq> {
   }
 
   Widget buildProductRow(int index) {
-    TextEditingController codeController = products[index]['code'] ?? TextEditingController();
-    TextEditingController nameController = products[index]['name'] ?? TextEditingController();
-
     return Column(
       children: [
-        buildTextField('Product Code', codeController),
+        buildTextField('Product Code', products[index].codeController),
         buildTextFieldWithSearchIcon(
           'Product Name',
-          nameController,
+          products[index].nameController,
           onTap: () async {
             final selectedProduct = await Navigator.push(
               context,
@@ -205,17 +179,18 @@ class _RfqState extends State<Rfq> {
 
             if (selectedProduct != null) {
               setState(() {
-                products[index]['name'] ??= TextEditingController();
-                products[index]['code'] ??= TextEditingController();
-                products[index]['name']!.text = selectedProduct['itemName'];
-                products[index]['code']!.text = selectedProduct['itemCode'];
+                products[index].nameController.text = selectedProduct['itemName'];
+                products[index].codeController.text = selectedProduct['itemCode'];
               });
             }
           },
         ),
+        buildTextField('Quantity', products[index].qtyController),
+        buildDropdown('Unit', products[index].unitController, unitDropdownValues, products[index].selectedUnit),
       ],
     );
   }
+
 
   Widget buildTextFieldWithSearchIcon(String labelText, TextEditingController controller, {VoidCallback? onTap}) {
     return Padding(
@@ -239,33 +214,83 @@ class _RfqState extends State<Rfq> {
     );
   }
 
-  void submitDataToFirestore() async {
+  Widget buildDropdown(String labelText, TextEditingController controller, List<String> items, String selectedItem) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: DropdownButtonFormField(
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+        ),
+        value: selectedItem,
+        items: items.map((item) {
+          return DropdownMenuItem(
+            value: item,
+            child: Text(item),
+          );
+        }).toList(),
+        onChanged: (value) {
+          controller.text = value.toString();
+          // Add any additional logic here based on the selected value
+        },
+      ),
+    );
+  }
+
+
+  void submitData() async {
     try {
-      await FirebaseFirestore.instance.collection('rfq').add({
+      CollectionReference deliveryCollection = FirebaseFirestore.instance.collection('delivery');
+
+      await deliveryCollection.add({
+        'customerCode': _customerCodeController.text,
         'customerName': _customerNameController.text,
         'address': _addressController.text,
         'phone': _phoneController.text,
+        'deliveryNoteNo': _deliveryNoteNoController.text,
+        'poNo': _poNoController.text,
         'vatNo': _vatNoController.text,
-        'entryDate': _entryDateController.text,
-        'quotationNo': _quotationNoController.text,
-        'salesman': _salesmanController.text,
-        'enquiryReference': _enquiryReferenceController.text,
-        'remarks': _remarksController.text,
-        'products': List.generate(
-          products.length,
-              (index) => {
-            'code': products[index]['code']?.text,
-            'name': products[index]['name']?.text,
-          },
-        ),
-        'validity': _validityController.text,
-        'deliveryTime': _deliveryTimeController.text,
-        'placeOfDelivery': _placeOfDeliveryController.text,
+        'refNo': _refNoController.text,
+        'date':_dateController.text,
+        'products': products.map((product) {
+          return {
+            'code': product.codeController.text,
+            'name': product.nameController.text,
+            'unit': product.unitController.text,
+            'quantity': product.qtyController.text,
+          };
+        }).toList(),
       });
 
       print('Data submitted to Firestore successfully');
+
+      // Navigate to SalesNav page after submitting data
+      String userEmail = widget.userEmail; // Store userEmail from widget
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SalesNav(userEmail: userEmail,)),
+      );
+
+      final snackBar = SnackBar(content:
+      const Text('Delivery Note Created Succesfully!'));
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
     } catch (error) {
       print('Error submitting data to Firestore: $error');
     }
   }
+
+
 }
+
+class ProductControllerGroup {
+  TextEditingController codeController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController qtyController = TextEditingController();
+  TextEditingController unitController = TextEditingController();
+  String selectedUnit = 'Unit'; // Set a default value
+}
+

@@ -1,11 +1,11 @@
-import 'package:UltimateSolutions/view/activitiy.dart';
-import 'package:UltimateSolutions/view/customers.dart';
-import 'package:UltimateSolutions/view/customerselection.dart';
-import 'package:UltimateSolutions/view/productselectionpage.dart';
+import 'package:UltimateSolutions/view/activity/activitiy.dart';
+import 'package:UltimateSolutions/view/customer/customers.dart';
+import 'package:UltimateSolutions/view/customer/customerselection.dart';
+import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 
-import 'deliverynote.dart';
+import '../delivery/deliverynote.dart';
 
 
 class ViewActivity extends StatelessWidget {

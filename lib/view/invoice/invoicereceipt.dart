@@ -100,20 +100,42 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
     final fontDataBold = await rootBundle.load("lib/assets/fonts/Poppins-Bold.ttf");
     final ttfFontBold = pw.Font.ttf(fontDataBold);
 
+
+    List<pw.Widget> _wrapText(String text) {
+      const int maxLineWidth = 21; // Set your desired maximum line width
+      List<pw.Widget> lines = [];
+
+      for (int i = 0; i < text.length; i += maxLineWidth) {
+        int end = i + maxLineWidth;
+        if (end > text.length) {
+          end = text.length;
+        }
+        lines.add(pw.Text(
+          text.substring(i, end),
+        ));
+      }
+
+      return lines;
+    }
+
+
     pw.TableRow _buildDetailsTableRow(List<String> rowData, {bool isHeader = false}) {
       return pw.TableRow(
         children: rowData.map((cellData) {
           return pw.Container(
             padding: pw.EdgeInsets.all(8.0),
             decoration: isHeader ? pw.BoxDecoration(color: pw.PdfColors.blue50) : null,
-            child: pw.Text(
-              cellData,
-              style: isHeader ? pw.TextStyle(font: ttfFontBold) : null,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: _wrapText(cellData),
             ),
           );
         }).toList(),
       );
     }
+
+
+
 
     pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false}) {
       return pw.Container(
@@ -371,6 +393,12 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
 
 
 
+    pw.Widget _buildTableCell(String text) {
+      return pw.Padding(
+        padding: pw.EdgeInsets.all(8.0),
+        child: pw.Text(text),
+      );
+    }
 
 
     pdf.addPage(
@@ -415,7 +443,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                 margin: pw.EdgeInsets.symmetric(horizontal: 20),
                 child: pw.Center(
                   child: pw.Text(
-                    'Invoice Receipt',
+                    'TAX INVOICE',
                     style: pw.TextStyle(font: ttfFontBold, fontSize: 18, letterSpacing: 2),
                   ),
                 ),
@@ -451,19 +479,78 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                 height: 1.0,
                 color: pw.PdfColors.blueAccent,
               ),
+             pw.SizedBox(height: 10),
+
 
              // _buildGrossAmountSection(data),
             //  _buildtaxAmountSection(data),
-              _buildNetAmountSection(data),
-              _buildNetAmountInWordsSection(data),
-          pw.Container(
-          margin: pw.EdgeInsets.symmetric(horizontal: 20),
-          child: pw.Container(
-          margin: pw.EdgeInsets.symmetric(vertical: 5),
-          color: pw.PdfColors.blue50,
-          height: 5,
-          ),
-          ),
+            //   _buildNetAmountSection(data),
+            //   _buildNetAmountInWordsSection(data),
+
+
+              // ... (your existing code)
+              pw.Padding(
+                padding: pw.EdgeInsets.symmetric(horizontal: 70.0),
+                child: pw.Container(
+                //  margin: pw.EdgeInsets.only(top: 10.0), // Adjust the top margin as needed
+                  child: pw.Table(
+
+                    border: pw.TableBorder.all(style: pw.BorderStyle.dashed,color: pw.PdfColors.blueAccent),
+                    children: [
+                      // Gross Amount Row
+                      pw.TableRow(
+                        children: [
+                          _buildTableCell('Gross Amount:'),
+                          _buildTableCell(
+                            data['totalWithoutVat']?.toString() ?? '',
+                          ),
+                        ],
+                      ),
+                      // Total VAT(15%) Row
+                      pw.TableRow(
+                        children: [
+                          _buildTableCell('Total VAT(15%):'),
+                          _buildTableCell(
+                            (double.parse(data['totalWithoutVat']?.toString() ?? '0') * 0.15).toStringAsFixed(2),
+                          ),
+                        ],
+                      ),
+                      // Net Amount Row
+                      pw.TableRow(
+                        children: [
+                          _buildTableCell('Net Amount:'),
+                          _buildTableCell(
+                            data['netAmount']?.toString() ?? '',
+                          ),
+                        ],
+                      ),
+                      // In Words Row
+                      pw.TableRow(
+                        children: [
+                          _buildTableCell('In Words:'),
+                          _buildTableCell(
+                            _getNetAmountInWords(data),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+// ... (your existing code)
+
+
+             // pw.SizedBox(height: 10),
+
+          // pw.Container(
+          // margin: pw.EdgeInsets.symmetric(horizontal: 20),
+          // child: pw.Container(
+          // margin: pw.EdgeInsets.symmetric(vertical: 5),
+          // color: pw.PdfColors.blue50,
+          // height: 5,
+          // ),
+          // ),
               pw.Center(
                 child: qrCodeImage,
               ),

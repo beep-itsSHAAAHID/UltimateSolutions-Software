@@ -1,6 +1,5 @@
 import 'package:UltimateSolutions/view/SalesHome.dart';
-import 'package:UltimateSolutions/view/invoice.dart';
-import 'package:UltimateSolutions/view/invoicereceipt.dart';
+import 'package:UltimateSolutions/view/invoice/invoice.dart';
 import 'package:UltimateSolutions/view/login.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,7 +70,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
 
-   // return MaterialApp(
+    // return MaterialApp(
     //  home: InvoiceReceipt(),
 
     if (isLogin) {
@@ -82,7 +81,7 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           title: 'Ultimate Solutions',
           home: Invoice (userEmail: widget.userEmail ?? ""),
-         // home: SalesNav(userEmail: widget.userEmail ?? ""),
+          // home: SalesNav(userEmail: widget.userEmail ?? ""),
         );
       } else {
         return MaterialApp(

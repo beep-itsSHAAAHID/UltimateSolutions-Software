@@ -2,11 +2,11 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:UltimateSolutions/view/productselectionpage.dart';
+import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'customerselection.dart';
+import '../customer/customerselection.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:UltimateSolutions/models/qrgenerator.dart';
 

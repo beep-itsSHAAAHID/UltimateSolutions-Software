@@ -1,4 +1,4 @@
-import 'package:UltimateSolutions/view/productselectionpage.dart';
+import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

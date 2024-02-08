@@ -1,8 +1,8 @@
-import 'package:UltimateSolutions/view/invoicereceipt.dart';
+import 'package:UltimateSolutions/view/invoice/invoicereceipt.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 
-import 'deliverynote.dart';
+import 'delivery/deliverynote.dart';
 
 
 class Print extends StatelessWidget {
