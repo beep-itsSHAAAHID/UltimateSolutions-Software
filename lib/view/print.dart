@@ -1,4 +1,5 @@
 import 'package:UltimateSolutions/view/invoice/invoicereceipt.dart';
+import 'package:UltimateSolutions/view/quotation/rfqreceipt.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 
@@ -76,6 +77,33 @@ class Print extends StatelessWidget {
               ),
             ),
           ),
+
+          InkWell(onTap: (){
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context)=>RfqReceipt()));
+          },
+            child: Container(
+              margin: EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blue),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Quotations',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  // Add your content for Invoice here
+                  // Example:
+
+                ],
+              ),
+            ),
+          ),
+
         ],
       ),
     );

@@ -1,8 +1,8 @@
-import 'package:UltimateSolutions/view/products/productselectionpage.dart';
-import 'package:UltimateSolutions/view/salesnav.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/customer/customerselection.dart';
+import 'package:UltimateSolutions/view/salesnav.dart';
 
 class Delivery extends StatefulWidget {
   final String userEmail;
@@ -23,13 +23,16 @@ class _DeliveryState extends State<Delivery> {
   TextEditingController _refNoController = TextEditingController();
   TextEditingController _vatNoController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
-  List<ProductControllerGroup> products = [ProductControllerGroup()]; // Initial product
+  List<ProductControllerGroup> products = [ProductControllerGroup()];
 
-  // Define your unit dropdown values
   List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece','Each','Box'];
 
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+    final bool isSmallScreen = screenSize.width < 600;
+    final double paddingValue = isSmallScreen ? 8.0 : 16.0;
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70.0),
@@ -49,13 +52,13 @@ class _DeliveryState extends State<Delivery> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(paddingValue),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 16),
               buildCustomerField(context),
-              buildTextField('Customer Name', _customerNameController, enabled: false),
+              buildTextField('Customer Name', _customerNameController, enabled: true),
               buildTextField('Address', _addressController),
               buildTextField('Phone No.', _phoneController),
               buildTextField('Vat No.', _vatNoController),
@@ -282,8 +285,6 @@ class _DeliveryState extends State<Delivery> {
       print('Error submitting data to Firestore: $error');
     }
   }
-
-
 }
 
 class ProductControllerGroup {
@@ -291,6 +292,5 @@ class ProductControllerGroup {
   TextEditingController nameController = TextEditingController();
   TextEditingController qtyController = TextEditingController();
   TextEditingController unitController = TextEditingController();
-  String selectedUnit = 'Unit'; // Set a default value
+  String selectedUnit = 'Unit';
 }
-

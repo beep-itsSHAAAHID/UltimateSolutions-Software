@@ -1,8 +1,12 @@
 import 'package:UltimateSolutions/view/SalesHome.dart';
+import 'package:UltimateSolutions/view/delivery/delivery.dart';
 import 'package:UltimateSolutions/view/delivery/deliverynote.dart';
 import 'package:UltimateSolutions/view/invoice/invoice.dart';
 import 'package:UltimateSolutions/view/invoice/invoicereceipt.dart';
 import 'package:UltimateSolutions/view/login.dart';
+import 'package:UltimateSolutions/view/print.dart';
+import 'package:UltimateSolutions/view/quotation/rfq.dart';
+import 'package:UltimateSolutions/view/quotation/rfqreceipt.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -68,49 +72,49 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //
+  //   return MaterialApp(
+  //
+  //     home: RfqReceipt(),
+  //   );
+  // }
+  //
+  // }
+
+
+
   @override
   Widget build(BuildContext context) {
 
-    return MaterialApp(
+    // return MaterialApp(
+    //  home: InvoiceReceipt(),
 
-      home: DeliveryNotes(),
-    );
+    if (isLogin) {
+      // User is authenticated
+      // You may also check the user role and navigate accordingly
+      if (widget.userRole == 'admin') {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Ultimate Solutions',
+          home: Invoice (userEmail: widget.userEmail ?? ""),
+          // home: SalesNav(userEmail: widget.userEmail ?? ""),
+        );
+      } else {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Ultimate Solutions',
+          home: SalesNav(userEmail: widget.userEmail ?? ""),
+        );
+      }
+    } else {
+      // User is not authenticated
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Ultimate Solutions',
+        home: Login(),
+      );
+    }
   }
-
-  }
-
-
-
-//   @override
-//   Widget build(BuildContext context) {
-//
-//     // return MaterialApp(
-//     //  home: InvoiceReceipt(),
-//
-//     if (isLogin) {
-//       // User is authenticated
-//       // You may also check the user role and navigate accordingly
-//       if (widget.userRole == 'admin') {
-//         return MaterialApp(
-//           debugShowCheckedModeBanner: false,
-//           title: 'Ultimate Solutions',
-//           home: Invoice (userEmail: widget.userEmail ?? ""),
-//           // home: SalesNav(userEmail: widget.userEmail ?? ""),
-//         );
-//       } else {
-//         return MaterialApp(
-//           debugShowCheckedModeBanner: false,
-//           title: 'Ultimate Solutions',
-//           home: SalesNav(userEmail: widget.userEmail ?? ""),
-//         );
-//       }
-//     } else {
-//       // User is not authenticated
-//       return MaterialApp(
-//         debugShowCheckedModeBanner: false,
-//         title: 'Ultimate Solutions',
-//         home: Login(),
-//       );
-//     }
-//   }
-// }
+}
