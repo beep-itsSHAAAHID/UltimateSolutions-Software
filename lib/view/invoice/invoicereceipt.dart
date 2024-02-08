@@ -470,8 +470,12 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.lightBlueAccent,
       appBar: AppBar(
-        title: Center(child: Text('Invoice Receipts')),
+        backgroundColor: Colors.lightBlueAccent,
+        title: Center(child: Text('Invoice Receipts',style: TextStyle(
+          color: Colors.white,fontSize: 50,fontWeight: FontWeight.w700
+        ),)),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _invoiceStream,

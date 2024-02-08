@@ -1,4 +1,5 @@
 import 'package:UltimateSolutions/view/SalesHome.dart';
+import 'package:UltimateSolutions/view/delivery/deliverynote.dart';
 import 'package:UltimateSolutions/view/invoice/invoice.dart';
 import 'package:UltimateSolutions/view/invoice/invoicereceipt.dart';
 import 'package:UltimateSolutions/view/login.dart';
@@ -72,7 +73,7 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
 
-      home: InvoiceReceipt(),
+      home: DeliveryNotes(),
     );
   }
 

@@ -29,6 +29,13 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
 
 
   Future<void> _generatePDF(Map<String, dynamic> data) async {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Generating PDF...'),
+        duration: Duration(seconds: 1), // Adjust the duration as needed
+      ),
+    );
     final pdf = pw.Document();
 
     final fontData = await rootBundle.load("lib/assets/fonts/Poppins-Regular.ttf");
@@ -37,15 +44,36 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
     final fontDataBold = await rootBundle.load("lib/assets/fonts/Poppins-Bold.ttf");
     final ttfFontBold = pw.Font.ttf(fontDataBold);
 
+
+
+
+    List<pw.Widget> _wrapText(String text) {
+      const int maxLineWidth = 40; // Set your desired maximum line width
+      List<pw.Widget> lines = [];
+
+      for (int i = 0; i < text.length; i += maxLineWidth) {
+        int end = i + maxLineWidth;
+        if (end > text.length) {
+          end = text.length;
+        }
+        lines.add(pw.Text(
+          text.substring(i, end),
+        ));
+      }
+
+      return lines;
+    }
+
+
     pw.TableRow _buildDetailsTableRow(List<String> rowData, {bool isHeader = false}) {
       return pw.TableRow(
         children: rowData.map((cellData) {
           return pw.Container(
-            padding: pw.EdgeInsets.all(8.0),
+            padding: pw.EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0), // Increase horizontal padding
             decoration: isHeader ? pw.BoxDecoration(color: pw.PdfColors.blue50) : null,
-            child: pw.Text(
-              cellData,
-              style: isHeader ? pw.TextStyle(font: ttfFontBold) : null,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: _wrapText(cellData),
             ),
           );
         }).toList(),
@@ -258,6 +286,8 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
       ),
     );
 
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
     final Uint8List pdfBytes = await pdf.save();
 
     await printing.Printing.layoutPdf(onLayout: (format) => pdfBytes);
@@ -269,8 +299,13 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.lightBlueAccent,
       appBar: AppBar(
-        title: Center(child: Text('Delivery Notes')),
+        backgroundColor: Colors.lightBlueAccent,
+        title: Center(child: Text('Delivery Notes',style: TextStyle(
+          fontSize: 50,fontWeight: FontWeight.w700,
+          color: Colors.white
+        ),)),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _deliveryStream,
@@ -288,16 +323,47 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
           return ListView.builder(
             itemCount: documents.length,
             itemBuilder: (context, index) {
-              var data = documents[index].data() as Map<String, dynamic>;
+              var sortedDocuments = documents.toList()
+                ..sort((a, b) => (b['deliveryNoteNo'] as String).compareTo(a['deliveryNoteNo'] as String));
+              var data = sortedDocuments[index].data() as Map<String, dynamic>;
               return Card(
-                elevation: 2.0,
-                margin: EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text(data['deliveryNoteNo']),
-                  subtitle: Text(data['customerName']),
-                  trailing: ElevatedButton(
-                    onPressed: () async => await _generatePDF(data),
-                    child: Text('Generate PDF'),
+                elevation: 4.0,
+                margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: InkWell(
+                  onTap: () async => await _generatePDF(data),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Delivery Note No: ${data['deliveryNoteNo']}',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8.0),
+                        Text(
+                          'Customer: ${data['customerName']}',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                        SizedBox(height: 8.0),
+                        Text(
+                          'Date: ${data['date']}',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
