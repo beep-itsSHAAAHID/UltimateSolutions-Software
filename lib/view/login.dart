@@ -1,9 +1,7 @@
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-
-import 'SalesHome.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -18,19 +16,6 @@ class _LoginState extends State<Login> {
   String selectedRole = '';
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _auth.setPersistence(Persistence.LOCAL); // or Persistence.SESSION
-  //
-  //   // Check if the user is already signed in
-  //   User? user = _auth.currentUser;
-  //   if (user != null) {
-  //     // User is already signed in, navigate to the appropriate page
-  //     navigateToHomePage(user.email);
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -119,6 +104,13 @@ class _LoginState extends State<Login> {
       print('User ID: ${userCredential.user?.uid}');
       print('Email: ${userCredential.user?.email}');
 
+      // Get SharedPreferences instance
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userEmail = prefs.getString('userEmail');
+      String? userRole = prefs.getString('userRole');
+      print('User email from SharedPreferences: $userEmail');
+      print('User role from SharedPreferences: $userRole');
+
       // Check if the selected role matches the role associated with the user's email
       if (!isRoleMatching(selectedRole, userCredential.user?.email)) {
         // Role mismatch, log out the user and show an error message
@@ -134,6 +126,7 @@ class _LoginState extends State<Login> {
 
       // Show a success message
       showSnackbar('Login successful');
+
     } catch (e) {
       // Authentication failed
       print('Authentication failed: $e');
@@ -197,12 +190,14 @@ class _LoginState extends State<Login> {
 
 
   void showSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 }
 

@@ -1,120 +1,95 @@
-import 'package:UltimateSolutions/view/SalesHome.dart';
-import 'package:UltimateSolutions/view/delivery/delivery.dart';
-import 'package:UltimateSolutions/view/delivery/deliverynote.dart';
-import 'package:UltimateSolutions/view/invoice/invoice.dart';
-import 'package:UltimateSolutions/view/invoice/invoicereceipt.dart';
 import 'package:UltimateSolutions/view/login.dart';
-import 'package:UltimateSolutions/view/print.dart';
-import 'package:UltimateSolutions/view/quotation/rfq.dart';
 import 'package:UltimateSolutions/view/quotation/rfqreceipt.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+  // Initialize SharedPreferences
+  SharedPreferences prefs;
+  try {
+    prefs = await SharedPreferences.getInstance();
+  } catch (e) {
+    print('Error initializing SharedPreferences: $e');
+    return;
+  }
 
+  // Retrieve user email and role from SharedPreferences
   String? userEmail = prefs.getString('userEmail');
   String? userRole = prefs.getString('userRole');
 
-
-  print('userEmail: $userEmail');
-  print('userRole: $userRole');
+  // Debug print statements
+  print('User Email from SharedPreferences: $userEmail');
+  print('User Role from SharedPreferences: $userRole');
 
   runApp(MyApp(userEmail: userEmail, userRole: userRole));
 }
 
-class MyApp extends StatefulWidget {
+
+
+class MyApp extends StatelessWidget {
   final String? userEmail;
   final String? userRole;
 
   const MyApp({Key? key, this.userEmail, this.userRole}) : super(key: key);
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  var auth = FirebaseAuth.instance;
-
-  var isLogin = false;
-
-  checkIfLogin() async {
-    auth.authStateChanges().listen((User? user) {
-      if (user != null && mounted) {
-        print('User is logged in');
-        setState(() {
-          isLogin = true;
-        });
-      } else {
-        print('User is not logged in');
-        setState(() {
-          isLogin = false;
-        });
-      }
-    });
-  }
-
-
-  @override
-  void initState() {
-    checkIfLogin();
-    if (widget.userEmail == false || widget.userRole == false) {
-      // Redirect to login page or handle appropriately
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Login()));
-    }
-    super.initState();
-  }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //
-  //   return MaterialApp(
-  //
-  //     home: RfqReceipt(),
-  //   );
-  // }
-  //
-  // }
-
-
 
   @override
   Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Ultimate Solutions',
+      home: RfqReceipt(),);
+  }
+}
 
-    // return MaterialApp(
-    //  home: InvoiceReceipt(),
 
-    if (isLogin) {
-      // User is authenticated
-      // You may also check the user role and navigate accordingly
-      if (widget.userRole == 'admin') {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Ultimate Solutions',
-          home: Invoice (userEmail: widget.userEmail ?? ""),
-          // home: SalesNav(userEmail: widget.userEmail ?? ""),
-        );
-      } else {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Ultimate Solutions',
-          home: SalesNav(userEmail: widget.userEmail ?? ""),
-        );
-      }
-    } else {
-      // User is not authenticated
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Ultimate Solutions',
-        home: Login(),
-      );
-    }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       title: 'Ultimate Solutions',
+//       home: AuthenticationWrapper(userEmail: userEmail, userRole: userRole),
+//     );
+//   }
+// }
+
+class AuthenticationWrapper extends StatelessWidget {
+  final String? userEmail;
+  final String? userRole;
+
+  const AuthenticationWrapper({Key? key, this.userEmail, this.userRole}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+
+    return StreamBuilder<User?>(
+      stream: _auth.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Handle loading state
+        }
+
+        if (snapshot.hasData && snapshot.data != null) {
+          // User is authenticated
+          if (userRole == 'admin') {
+            return SalesNav(userEmail: userEmail ?? "");
+          } else {
+            return SalesNav(userEmail: userEmail ?? "");
+          }
+        } else {
+          // User is not authenticated
+          return Login();
+        }
+      },
+    );
   }
 }

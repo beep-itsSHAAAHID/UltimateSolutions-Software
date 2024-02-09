@@ -6,8 +6,6 @@ import 'package:pdf/pdf.dart' as pw;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart' as printing;
 import 'package:number_to_words/number_to_words.dart' as words;
-import 'package:http/http.dart' as http;
-
 
 
 class RfqReceipt extends StatefulWidget {
@@ -354,13 +352,14 @@ class _RfqReceiptState extends State<RfqReceipt> {
                 child: pw.SizedBox(),
               ),
               pw.Padding(
-                padding: pw.EdgeInsets.only(left: 20, top: 10),
-                child: pw.Row(
-                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                padding: pw.EdgeInsets.only(left: 20, bottom: 5),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
                   mainAxisAlignment: pw.MainAxisAlignment.start,
                   children: [
                     pw.Text(
-                      'Received By:',
+                      'Note:'
+                          ,
                       style: pw.TextStyle(
                         font: ttfFontBold,
                         fontSize: 16,
@@ -369,11 +368,12 @@ class _RfqReceiptState extends State<RfqReceipt> {
                     ),
                     pw.SizedBox(width: 200),
                     pw.Text(
-                      'Sales Dept:',
+                      '-Materials quoted are subject to the availability at the time of confirmation by Purchase Order. \n -Items that are not specifically mentioned and agreed are excluded from the scope.\n -Prices quoted are based on all items and quantities ordered.\n-Validity of the Quotation is 30 days.'
+                          ,
                       style: pw.TextStyle(
-                        font: ttfFontBold,
-                        fontSize: 16,
-                        decoration: pw.TextDecoration.underline,
+                        font: ttfFont,
+                        fontSize: 12,
+
                       ),
                     ),
                   ],
@@ -395,6 +395,7 @@ class _RfqReceiptState extends State<RfqReceipt> {
 
     await printing.Printing.layoutPdf(onLayout: (format) => pdfBytes);
 
+
     print('PDF generated successfully!');
 
 
@@ -408,7 +409,7 @@ class _RfqReceiptState extends State<RfqReceipt> {
       backgroundColor: Colors.lightBlueAccent,
       appBar: AppBar(
         backgroundColor: Colors.lightBlueAccent,
-        title: Center(child: Text('Invoice Receipts',style: TextStyle(
+        title: Center(child: Text('Quotation Notes',style: TextStyle(
             color: Colors.white,fontSize: 50,fontWeight: FontWeight.w700
         ),)),
       ),
