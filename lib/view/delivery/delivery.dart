@@ -81,7 +81,7 @@ class _DeliveryState extends State<Delivery> {
               ElevatedButton(
                 onPressed: submitData,
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.green,
+                  backgroundColor: Colors.green,
                 ),
                 child: Icon(Icons.check),
               ),

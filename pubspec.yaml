@@ -59,6 +59,9 @@ dependencies:
   image: ^4.1.4
   http: ^1.2.0
   flutter_cache_manager: ^3.3.1
+  arabic_tools: ^0.0.4
+  arabic_numbers: ^1.0.0
+
 
 
 dev_dependencies:
@@ -112,6 +115,13 @@ flutter:
           - asset: lib/assets/fonts/Poppins-Bold.ttf
           - asset: lib/assets/fonts/Poppins-Medium.ttf
           - asset: lib/assets/fonts/Poppins-Regular.ttf
+          - asset: lib/assets/fonts/NotoSansArabic-Regular.ttf
+          - asset: lib/assets/fonts/IBMPlexSansArabic-Bold.ttf
+          - asset: lib/assets/fonts/Rubik-Black.ttf
+          - asset: lib/assets/fonts/HacenTunisia.ttf
+
+
+
 
   #   - family: Trajan Pro
   #     fonts:

@@ -27,6 +27,7 @@ class _InvoiceState extends State<Invoice> {
   final TextEditingController vatNoController = TextEditingController();
   final TextEditingController customerCodeController = TextEditingController();
   final TextEditingController customerNameController = TextEditingController();
+  final TextEditingController arabicNameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController deliveryPlaceController = TextEditingController();
   final TextEditingController netAmountController = TextEditingController();
@@ -98,6 +99,7 @@ class _InvoiceState extends State<Invoice> {
                       customerNameController.text = selectedCustomer['customerName'] ?? '';
                       addressController.text = selectedCustomer['address'] ?? '';
                       vatNoController.text = selectedCustomer['vtNumber'] ?? '';
+                      arabicNameController.text = selectedCustomer['arabicName'] ??'';
                       // Update other fields as needed
                     });
                   }
@@ -117,6 +119,11 @@ class _InvoiceState extends State<Invoice> {
               buildTextFormField(
                 controller: vatNoController,
                 label: 'Customer Vat Number',
+              ),
+              SizedBox(height: 16),
+              buildTextFormField(
+                controller: arabicNameController,
+                label: 'Arabic Name',
               ),
               SizedBox(height: 16),
               buildDateFormField(
@@ -211,7 +218,7 @@ class _InvoiceState extends State<Invoice> {
               ElevatedButton(
                 onPressed: submitData,
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.green,
+                  backgroundColor: Colors.green,
                 ),
                 child: Icon(Icons.check) ,
               ),
@@ -330,6 +337,7 @@ class _InvoiceState extends State<Invoice> {
         'invoiceDate': invoiceDateController.text,
         'entryDate': entryDateController.text,
         'invoiceNo': invoiceNoController.text,
+        'arabicName': arabicNameController.text,
         'deliveryNoteNo': deliveryNoteNoController.text,
         'poNo': poNoController.text,
         'vatNo': vatNoController.text,

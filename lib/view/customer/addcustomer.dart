@@ -16,6 +16,7 @@ class AddCustomer extends StatefulWidget {
 class _AddCustomerState extends State<AddCustomer> {
   late TextEditingController _customerCodeController;
   TextEditingController _customerNameController = TextEditingController();
+  TextEditingController _arabicNameController = TextEditingController();
   TextEditingController _contactPersonController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
   TextEditingController _mobileNumberController = TextEditingController();
@@ -68,6 +69,7 @@ class _AddCustomerState extends State<AddCustomer> {
       // Retrieve values from controllers
       String customerCode = _customerCodeController.text;
       String customerName = _customerNameController.text;
+      String arabicName = _arabicNameController.text;
       String contactPerson = _contactPersonController.text;
       String address = _addressController.text;
       String mobileNumber = _mobileNumberController.text;
@@ -79,6 +81,7 @@ class _AddCustomerState extends State<AddCustomer> {
       // Add customer data to Firestore
       await FirebaseFirestore.instance.collection('customers').add({
         'customerCode': customerCode,
+        'arabicName':arabicName,
         'customerName': customerName,
         'contactPerson': contactPerson,
         'address': address,
@@ -136,6 +139,7 @@ class _AddCustomerState extends State<AddCustomer> {
               SizedBox(height: 10),
               buildTextField('Customer Code', _customerCodeController),
               buildTextField('Enter Customer Name', _customerNameController),
+              buildTextField('Enter Arabic Name', _arabicNameController),
               buildTextField('Enter Contact Person', _contactPersonController),
               buildTextField('Enter Address', _addressController),
               buildTextField('Enter Mobile No.', _mobileNumberController),

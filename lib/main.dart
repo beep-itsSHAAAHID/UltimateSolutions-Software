@@ -1,3 +1,4 @@
+import 'package:UltimateSolutions/view/invoice/invoicereceipt.dart';
 import 'package:UltimateSolutions/view/login.dart';
 import 'package:UltimateSolutions/view/quotation/rfqreceipt.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
@@ -40,26 +41,26 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key, this.userEmail, this.userRole}) : super(key: key);
 
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Ultimate Solutions',
-      home: RfqReceipt(),);
-  }
-}
-
-
-
 //   @override
 //   Widget build(BuildContext context) {
 //     return MaterialApp(
 //       debugShowCheckedModeBanner: false,
 //       title: 'Ultimate Solutions',
-//       home: AuthenticationWrapper(userEmail: userEmail, userRole: userRole),
-//     );
+//       home: InvoiceReceipt());
 //   }
 // }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Ultimate Solutions',
+      home: AuthenticationWrapper(userEmail: userEmail, userRole: userRole),
+    );
+  }
+}
 
 class AuthenticationWrapper extends StatelessWidget {
   final String? userEmail;

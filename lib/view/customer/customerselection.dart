@@ -47,6 +47,7 @@ class CustomerSelectionPage extends StatelessWidget {
                   Navigator.pop(context, {
                     'customerCode': customerCode,
                     'customerName': customerData['customerName'],
+                    'arabicName':customerData['arabicName'],
                     'address': customerData['address'],
                     'mobileNumber': customerData['mobileNumber'],
                     'vtNumber': customerData['vtNumber'],
