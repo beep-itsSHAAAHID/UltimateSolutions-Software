@@ -1,21 +1,26 @@
+import 'package:UltimateSolutions/view/activity/activitiy.dart';
 import 'package:UltimateSolutions/view/activity/addactivity.dart';
+import 'package:UltimateSolutions/view/delivery/deliverynote.dart';
+import 'package:UltimateSolutions/view/inventory.dart';
+import 'package:UltimateSolutions/view/invoice/invoicereceipt.dart';
 import 'package:UltimateSolutions/view/print.dart';
-import 'package:UltimateSolutions/view/products/purchase.dart';
+import 'package:UltimateSolutions/view/purchase/add_purchase.dart';
+import 'package:UltimateSolutions/view/purchase/view_purchase.dart';
 import 'package:UltimateSolutions/view/quotation/rfq.dart';
 import 'package:UltimateSolutions/view/activity/viewallactivities.dart';
+import 'package:UltimateSolutions/view/quotation/rfqreceipt.dart';
+import 'package:UltimateSolutions/view/vat_report/vat_report.dart';
 import 'package:flutter/material.dart';
-
-
-import 'customer/addcustomer.dart';
 import 'checkout.dart';
 import 'credits.dart';
+import 'customer/addcustomer.dart';
+import 'customer/customers.dart';
 import 'delivery/delivery.dart';
 import 'followup.dart';
 import 'invoice/invoice.dart';
 
 class SalesNav extends StatefulWidget {
-  SalesNav({Key? key, this.userEmail=''}) : super(key: key);
-
+  SalesNav({Key? key, this.userEmail = ''}) : super(key: key);
 
   final String userEmail;
 
@@ -49,72 +54,184 @@ class _SalesNavState extends State<SalesNav> {
             ),
           ),
         ),
-          body: LayoutBuilder(
-              builder: (context, constraints) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: constraints.maxWidth > 600 ? 100 : 20,
-                    vertical: 20,
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: constraints.maxWidth > 600 ? 50 : 10,
+                vertical: 20,
+              ),
+              child: GridView.count(
+                crossAxisCount: 6,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+                childAspectRatio: 0.8,
+                children: [
+                  buildMenuItem(
+                    'Purchase',
+                    Icons.shopping_cart,
+                    Colors.blue,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Add Purchase', 'page': Purchase(userEmail: widget.userEmail)},
+                      {'title': 'View Purchase', 'page': ViewPurchase()}, // Replace with your view purchase page
+                    ],
                   ),
-          child: GridView.count(
-            crossAxisCount: constraints.maxWidth > 600 ? 6 : 2,
-            mainAxisSpacing: 20,
-            childAspectRatio: 1.2,
-            children: [
-              if (isAdmin)
-                buildMenuItem('Purchase', Purchase(userEmail: widget.userEmail), Icons.shopping_cart, Colors.blue),
-              if (isAdmin)
-                buildMenuItem('Add Customer', AddCustomer(userEmail: widget.userEmail,), Icons.person_add, Colors.green),
-              if (isAdmin)
-                buildMenuItem('RFQ', Rfq(userEmail: widget.userEmail), Icons.task, Colors.orange),
-              if (isAdmin)
-                buildMenuItem('Delivery', Delivery(userEmail: widget.userEmail), Icons.fire_truck, Colors.purple),
-              if (isAdmin)
-                buildMenuItem('Invoice', Invoice(userEmail: widget.userEmail,), Icons.receipt_long, Colors.red),
-              if (isAdmin)
-                buildMenuItem('View Activity', ViewActivity(), Icons.list, Colors.teal),
-              if (isAdmin)
-                buildMenuItem('View Credits', Credits(), Icons.credit_card_rounded, Colors.indigo),
-              if (isAdmin)
-                buildMenuItem('Follow Up', FollowUp(), Icons.timelapse, Colors.deepOrange),
-              if (isAdmin)
-                buildMenuItem('Print', Print(), Icons.print, Colors.blue),
-              if (isUser)
-                buildMenuItem('Add Activity', AddActivity(userEmail: widget.userEmail,), Icons.done_all_rounded, Colors.amber),
-              buildCheckoutButton(),
-            ],
+                  buildMenuItem(
+                    'Add Activity',
+                    Icons.done_all_rounded,
+                    Colors.amber,
+                    isVisible: isAdmin || isUser,
+                    options: [
+                      {'title': 'Add Activity', 'page': AddActivity(userEmail: widget.userEmail)},
+                    ],
+                  ),
+                  buildMenuItem(
+                    'Add Customer',
+                    Icons.person_add,
+                    Colors.green,
+                    isVisible: isAdmin || isUser,
+                    options: [
+                      {'title': 'Add Customer', 'page': AddCustomer(userEmail: widget.userEmail)},
+                      {'title': 'View Customers', 'page': ViewCustomers(userEmail: widget.userEmail,isAdmin: isAdmin,)}, // Replace with your view customers page
+                    ],
+                  ),
+                  buildMenuItem(
+                    'RFQ',
+                    Icons.task,
+                    Colors.orange,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Add RFQ', 'page': Rfq(userEmail: widget.userEmail)},
+                      {'title': 'View RFQs', 'page': RfqReceipt()}, // Replace with your view RFQs page
+                    ],
+                  ),
+                  buildMenuItem(
+                    'Delivery',
+                    Icons.fire_truck,
+                    Colors.purple,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Add Delivery', 'page': Delivery(userEmail: widget.userEmail)},
+                      {'title': 'View Delivery Notes', 'page': DeliveryNotes()}, // Replace with your view deliveries page
+                    ],
+                  ),
+                  buildMenuItem(
+                    'Invoice',
+                    Icons.receipt_long,
+                    Colors.red,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Add Invoice', 'page': Invoice(userEmail: widget.userEmail)},
+                      {'title': 'View Invoices', 'page': InvoiceReceipt(userEmail: widget.userEmail)}, // Replace with your view invoices page
+                    ],
+                  ),
+                  buildMenuItem(
+                    'View Activity',
+                    Icons.list,
+                    Colors.teal,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'View Activities', 'page': Activities()},
+                    ],
+                  ),
+                  buildCheckoutButton(),
+                  buildMenuItem(
+                    'View Credits',
+                    Icons.credit_card_rounded,
+                    Colors.indigo,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'View Credits', 'page': Credits()},
+                    ],
+                  ),
+                  buildMenuItem(
+                    'Inventory',
+                    Icons.store,
+                    Colors.purpleAccent,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Check Inventory', 'page': Inventory()},
+                    ],
+                  ),
 
-          ),
-                );
-              },
-          ),
+                  buildMenuItem(
+                    'Vat Report',
+                    Icons.print,
+                    Colors.blue,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Cming Soon', 'page': VatReport()},
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
-  Widget buildMenuItem(String title, Widget page, IconData icon, Color color) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-      },
+
+  Widget buildMenuItem(String title, IconData icon, Color color,
+      {bool isVisible = true, required List<Map<String, dynamic>> options}) {
+    return Visibility(
+      visible: isVisible,
       child: Card(
         elevation: 5,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
         color: color,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 40),
-            SizedBox(height: 10),
-            Text(
-              title,
-              style: TextStyle(color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 40),
+              SizedBox(height: 10),
+              Text(
+                title,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.white,
                   fontSize: 18,
-                  fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
-            ),
-          ],
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 10),
+              ...options.map((option) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => option['page']),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Center(
+                        child: Text(
+                          option['title'],
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
         ),
       ),
     );
@@ -139,7 +256,8 @@ class _SalesNavState extends State<SalesNav> {
             SizedBox(height: 10),
             Text(
               'Checkout',
-              style: TextStyle(color: Colors.white,
+              style: TextStyle(
+                  color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w500),
               textAlign: TextAlign.center,
@@ -167,4 +285,3 @@ class _SalesNavState extends State<SalesNav> {
     return userEmail?.contains('@salesman.ultimategcc.com') == true;
   }
 }
-

@@ -32,6 +32,9 @@ migrate_working_dir/
 .pub/
 /build/
 
+/lib/api/google_sheets_api.dart
+
+
 # Symbolication related
 app.*.symbols
 

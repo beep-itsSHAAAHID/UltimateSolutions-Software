@@ -3,27 +3,21 @@ import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class Purchase extends StatefulWidget {
-
   final String userEmail;
-  Purchase({Key? key, required this.userEmail}) : super(key: key);
 
+  Purchase({Key? key, required this.userEmail}) : super(key: key);
 
   @override
   State<Purchase> createState() => _PurchaseState();
-
 }
 
 class _PurchaseState extends State<Purchase> {
-
-
   List<Map<String, TextEditingController>> products = [
     {'code': TextEditingController(), 'name': TextEditingController()}
   ];
   TextEditingController _productCodeController = TextEditingController();
   TextEditingController _productNameController = TextEditingController();
-
   TextEditingController _purchaseAmountController = TextEditingController();
   TextEditingController _amountController = TextEditingController();
   TextEditingController _currentStockController = TextEditingController();
@@ -59,7 +53,6 @@ class _PurchaseState extends State<Purchase> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             buildProductRow(),
-
             SizedBox(height: 16),
             buildTextField('Enter Purchase Amount', _purchaseAmountController),
             buildTextField('Enter Quantity', _amountController),
@@ -75,10 +68,8 @@ class _PurchaseState extends State<Purchase> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                addDataToFirestore();Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context)=>SalesNav(userEmail: widget.userEmail)));
-                // Call a function or navigate to the next screen
-                // based on your requirements.
+                addDataToFirestore();
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: widget.userEmail)));
               },
               child: Text('Submit'),
             ),
@@ -102,6 +93,13 @@ class _PurchaseState extends State<Purchase> {
                 builder: (context) => ProductSelectionPage(),
               ),
             );
+            // Update state with selected product data
+            if (selectedProduct != null && selectedProduct is Map<String, dynamic>) {
+              setState(() {
+                _productCodeController.text = selectedProduct['itemCode'] ?? '';
+                _productNameController.text = selectedProduct['itemName'] ?? '';
+              });
+            }
           },
         ),
       ],
@@ -187,10 +185,7 @@ class _PurchaseState extends State<Purchase> {
     try {
       FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-
-
       await firestore.collection('products').add({
-
         'productName': _productNameController.text,
         'productCode': _productCodeController.text,
         'purchaseAmount': _purchaseAmountController.text,
@@ -202,7 +197,7 @@ class _PurchaseState extends State<Purchase> {
         'wholesaleRate': _wholesaleRateController.text,
         'vatCategory': _selectedVATCategory,
         'priceAfterVAT': _priceAfterVATController.text,
-
+        'addedBy': widget.userEmail, // Include the user email of the person adding the purchase
       });
 
       print('Data added to Firestore successfully!');

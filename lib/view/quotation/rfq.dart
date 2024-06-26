@@ -6,6 +6,7 @@ import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../customer/customerselection.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:UltimateSolutions/models/qrgenerator.dart';
@@ -29,15 +30,44 @@ class _RfqState extends State<Rfq> {
   final TextEditingController customerNameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController deliveryPlaceController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController netAmountController = TextEditingController();
+  final TextEditingController personController = TextEditingController();
   final TextEditingController unitController = TextEditingController();
   TextEditingController vatExclusiveController = TextEditingController();
+
   List<ProductControllerGroup> products = [ProductControllerGroup()];
   String? selectedModeOfPayment;
   List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece','Each','Box'];
   double totalLineTotal = 0.0;
 
   final GlobalKey _globalKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _setNextQuotationNumber();
+    _setCurrentDate();
+
+  }
+
+  void _setCurrentDate() {
+    final DateTime now = DateTime.now();
+    final String formattedDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    quotationDateController.text = formattedDate;
+  }
+
+  Future<void> _setNextQuotationNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int nextQuotationNo = prefs.getInt('quotationNo') ?? 200000; // Start from 10000 if not set
+
+    setState(() {
+      quotationNoController.text = '$nextQuotationNo';
+    });
+
+    // Increment the quotation number and save it back to SharedPreferences
+    await prefs.setInt('quotationNo', nextQuotationNo + 1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +128,8 @@ class _RfqState extends State<Rfq> {
                       customerNameController.text = selectedCustomer['customerName'] ?? '';
                       addressController.text = selectedCustomer['address'] ?? '';
                       vatNoController.text = selectedCustomer['vtNumber'] ?? '';
+                      emailController.text = selectedCustomer['email'] ?? '';
+                      personController.text = selectedCustomer['contactPerson'] ?? '';
                       // Update other fields as needed
                     });
                   }
@@ -112,6 +144,16 @@ class _RfqState extends State<Rfq> {
               buildTextFormField(
                 controller: addressController,
                 label: 'Address',
+              ),
+              SizedBox(height: 16),
+              buildTextFormField(
+                controller: emailController,
+                label: 'Email',
+              ),
+              SizedBox(height: 16),
+              buildTextFormField(
+                controller: personController,
+                label: 'Contact Person',
               ),
               SizedBox(height: 16),
               buildTextFormField(

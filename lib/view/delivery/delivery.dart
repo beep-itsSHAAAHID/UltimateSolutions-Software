@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/customer/customerselection.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Delivery extends StatefulWidget {
   final String userEmail;
@@ -26,6 +27,33 @@ class _DeliveryState extends State<Delivery> {
   List<ProductControllerGroup> products = [ProductControllerGroup()];
 
   List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece','Each','Box'];
+
+  @override
+  void initState() {
+    super.initState();
+    _setNextDeliveryNoteNumber();
+    _setCurrentDate();
+  }
+
+  void _setCurrentDate() {
+    final DateTime now = DateTime.now();
+    final String formattedDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    _dateController.text = formattedDate;
+  }
+
+
+
+  Future<void> _setNextDeliveryNoteNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int nextDeliveryNoteNo = prefs.getInt('deliveryNoteNo') ?? 200020; // Start from 10000 if not set
+
+    setState(() {
+      _deliveryNoteNoController.text = '$nextDeliveryNoteNo';
+    });
+
+    // Increment the delivery note number and save it back to SharedPreferences
+    await prefs.setInt('deliveryNoteNo', nextDeliveryNoteNo + 1);
+  }
 
   @override
   Widget build(BuildContext context) {

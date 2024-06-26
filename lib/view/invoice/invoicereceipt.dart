@@ -10,10 +10,12 @@ import 'package:http/http.dart' as http;
 import 'package:arabic_numbers/arabic_numbers.dart';
 import 'package:number_to_word_arabic/number_to_word_arabic.dart';
 
-
+import 'invoice.dart';
 
 class InvoiceReceipt extends StatefulWidget {
-  const InvoiceReceipt({Key? key}) : super(key: key);
+
+  final String userEmail;
+  const  InvoiceReceipt({ required this.userEmail});
 
   @override
   State<InvoiceReceipt> createState() => _InvoiceReceiptState();
@@ -25,6 +27,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
 
 
 
+
   @override
   void initState() {
     super.initState();
@@ -32,9 +35,9 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
   }
 
   void _initDeliveryStream() {
-    _invoiceStream = FirebaseFirestore.instance.collection('invoices').snapshots();
+    _invoiceStream =
+        FirebaseFirestore.instance.collection('invoices').snapshots();
   }
-
 
   Future<pw.Widget> _buildQRCodeImage(String imageUrl) async {
     try {
@@ -88,9 +91,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
     );
   }
 
-
   Future<void> _generatePDF(Map<String, dynamic> data) async {
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Generating PDF...'),
@@ -98,26 +99,22 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
       ),
     );
 
-
     final pdf = pw.Document();
 
-
-
-    final fontData = await rootBundle.load("lib/assets/fonts/Poppins-Regular.ttf");
+    final fontData =
+        await rootBundle.load("lib/assets/fonts/Poppins-Regular.ttf");
     final ttfFont = pw.Font.ttf(fontData);
 
-    final fontDataBold = await rootBundle.load("lib/assets/fonts/Poppins-Bold.ttf");
+    final fontDataBold =
+        await rootBundle.load("lib/assets/fonts/Poppins-Bold.ttf");
     final ttfFontBold = pw.Font.ttf(fontDataBold);
 
-    final ttfArabicFont = pw.Font.ttf(await rootBundle.load("lib/assets/fonts/HacenTunisia.ttf"));
-
-
-
-
-
+    final ttfArabicFont =
+        pw.Font.ttf(await rootBundle.load("lib/assets/fonts/HacenTunisia.ttf"));
 
     List<pw.Widget> _wrapText(String text) {
-      const int maxCharactersPerLine = 40; // Set your desired maximum characters per line
+      const int maxCharactersPerLine =
+          40; // Set your desired maximum characters per line
       List<pw.Widget> lines = [];
 
       for (int i = 0; i < text.length; i += maxCharactersPerLine) {
@@ -129,8 +126,9 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
           pw.Text(
             text.substring(i, end),
             style: pw.TextStyle(font: ttfArabicFont),
-            textDirection: pw.TextDirection.rtl, // Right-to-left text direction for Arabic
-            textAlign: pw.TextAlign.center,// Apply the font style here
+            textDirection: pw.TextDirection.rtl,
+            // Right-to-left text direction for Arabic
+            textAlign: pw.TextAlign.center, // Apply the font style here
           ),
         );
       }
@@ -139,13 +137,16 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
     }
 
 
-    pw.TableRow _buildDetailsTableRow(List<String> rowData, {bool isHeader = false}) {
-      return pw.TableRow(
 
+    pw.TableRow _buildDetailsTableRow(List<String> rowData,
+        {bool isHeader = false}) {
+      return pw.TableRow(
         children: rowData.map((cellData) {
           return pw.Container(
-            padding: pw.EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0), // Increase horizontal padding
-            decoration: isHeader ? pw.BoxDecoration(color: pw.PdfColors.blue50) : null,
+            padding: pw.EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
+            // Increase horizontal padding
+            decoration:
+                isHeader ? pw.BoxDecoration(color: pw.PdfColors.blue50) : null,
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.center,
               children: _wrapText(cellData),
@@ -155,91 +156,170 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
       );
     }
 
+    // pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false, bool isCustomerName = false, bool isArabicName = false}) {
+    //   return pw.Container(
+    //     margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+    //     child: pw.Row(
+    //       crossAxisAlignment: pw.CrossAxisAlignment.start,
+    //       children: [
+    //         pw.Expanded(
+    //           flex: 1,
+    //           child: pw.Text(
+    //             label,
+    //             style: pw.TextStyle(
+    //               font: isArabicName ? ttfArabicFont : ttfFontBold,
+    //               fontWeight: isBold ? pw.FontWeight.bold : null,
+    //             ),
+    //             textDirection: isArabicName ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+    //           ),
+    //         ),
+    //         pw.SizedBox(width: 10),
+    //         pw.Expanded(
+    //           flex: 2,
+    //           child: pw.Container(
+    //             constraints: pw.BoxConstraints(maxWidth: 300), // Increase maxWidth for better text wrapping
+    //             child: pw.Text(
+    //               '${value ?? ''}',
+    //               style: pw.TextStyle(
+    //                 font: ttfArabicFont, // Use Arabic font for the value
+    //                 fontWeight: pw.FontWeight.bold,
+    //                 letterSpacing: 0, // No letter spacing
+    //               ),
+    //               textDirection: isCustomerName ? pw.TextDirection.ltr : pw.TextDirection.rtl,
+    //               textAlign: pw.TextAlign.left, // Align Arabic text to the right
+    //               maxLines: isCustomerName ? 3 : 2, // Allow for more lines
+    //               overflow: pw.TextOverflow.visible, // Clip overflow text
+    //               softWrap: true, // Ensure text wraps properly
+    //             ),
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
 
-    pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false}) {
-      return pw.Container(
-        margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-        child: pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            // Label
-            pw.Text(
-              label,
-              style: pw.TextStyle(
-                font: ttfFontBold,
-                fontWeight: isBold ? pw.FontWeight.bold : null,
-              ),
-            ),
-            // Value
-            pw.Container(
-              //alignment: pw.Alignment.centerRight,
-              child: pw.Text(
-                '${value ?? ''}',
-                style: pw.TextStyle(
-                  font: ttfArabicFont, // Use Arabic font for the value
-                  fontWeight:  pw.FontWeight.bold ,
-                  letterSpacing: 0, // No letter spacing
+    pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false, bool isCustomerName = false, bool isArabicName = false}) {
+      return pw.Table(
+        border: pw.TableBorder(
+          top: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
+          bottom: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
+          left: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
+          right: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
+          horizontalInside: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dashed),
+          verticalInside: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dashed),
+        ),
+        columnWidths: {
+          0: pw.FixedColumnWidth(100), // Adjust the width as needed
+          1: pw.FlexColumnWidth(),
+        },
+        children: [
+          pw.TableRow(
+            children: [
+              pw.Container(
+                padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3), // Reduce padding
+                child: pw.Text(
+                  label,
+                  style: pw.TextStyle(
+                    font: isArabicName ? ttfArabicFont : ttfFontBold,
+                    fontWeight: isBold ? pw.FontWeight.bold : null,
+                    fontSize: 10, // Reduce font size
+                  ),
+                  textDirection: isArabicName ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+                  textAlign: pw.TextAlign.left,
                 ),
-                textDirection: pw.TextDirection.rtl, // Right-to-left text direction for Arabic
-                textAlign: pw.TextAlign.left, // Align Arabic text to the right
               ),
+              pw.Container(
+                padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3), // Reduce padding
+                constraints: pw.BoxConstraints(maxWidth: 300), // Adjust maxWidth for better text wrapping
+                child: pw.Text(
+                  '${value ?? ''}',
+                  style: pw.TextStyle(
+                    font: ttfArabicFont, // Use Arabic font for the value
+                    fontWeight: pw.FontWeight.bold,
+                    letterSpacing: 0, // No letter spacing
+                    fontSize: 10, // Reduce font size
+                  ),
+                  textDirection: isCustomerName ? pw.TextDirection.ltr : pw.TextDirection.rtl,
+                  textAlign: pw.TextAlign.left, // Align Arabic text to the right
+                  maxLines: isCustomerName ? 3 : 2, // Allow for more lines
+                  overflow: pw.TextOverflow.visible, // Clip overflow text
+                  softWrap: true, // Ensure text wraps properly
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    pw.Widget _buildDetailsColumn(Map<String, dynamic> data) {
+      return pw.Container(
+        margin: pw.EdgeInsets.only(left: 17,right: 17), // Add margins to the entire table
+        child: pw.Table(
+
+          columnWidths: {
+            0: pw.FlexColumnWidth(1),
+            1: pw.FlexColumnWidth(1),
+          },
+          children: [
+            pw.TableRow(
+              children: [
+                pw.Container(
+                  padding: pw.EdgeInsets.all(5), // Reduce padding
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailText('Customer Name:', data['customerName'], isBold: true, isCustomerName: true),
+                      _buildDetailText(' :اسم الزبون', data['arabicName'], isBold: true, isArabicName: true),
+                      _buildDetailText('VAT Number:', data['vatNo'], isBold: true),
+                      _buildDetailText('Address:', data['address'], isBold: true),
+                    ],
+                  ),
+                ),
+                pw.Container(
+                  padding: pw.EdgeInsets.all(5), // Reduce padding
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailText('Payment Term:', data['modeOfPayment'], isBold: true),
+                      _buildDetailText('Date:', data['invoiceDate'], isBold: true),
+                      _buildDetailText('Invoice No.:', data['invoiceNo'], isBold: true),
+                      _buildDetailText('Po No.:', data['poNo'], isBold: true),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       );
     }
 
-    pw.Widget _buildDetailsColumn(Map<String, dynamic> data) {
-      return pw.Row(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          // Customer Details
-          pw.Expanded(
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildDetailText('Customer Code:', data['customerCode'], isBold: true),
-                _buildDetailText('Customer Name:', data['customerName'], isBold: true),
-                _buildDetailText('', data['arabicName'], isBold: true),
-                _buildDetailText('VAT Number:', data['vatNo'], isBold: true),
-                _buildDetailText('Address:', data['address'], isBold: true),
-              ],
-            ),
-          ),
-          // Spacer
-          pw.SizedBox(width: 20),
-          // Vertical Divider
-          pw.Container(
-            height: 130, // Set a fixed height for the vertical divider
-            width: 5,
-            color: pw.PdfColors.blue50,
-          ),
-          // Payment Details
-          pw.Expanded(
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildDetailText('Payment Term:', data['modeOfPayment'], isBold: true),
-                _buildDetailText('Date:', data['invoiceDate'], isBold: true),
-                _buildDetailText('Invoice No.:', data['invoiceNo'], isBold: true),
-                _buildDetailText('Po No.:', data['poNo'], isBold: true),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
 
 
 
 
 
+
+
+
+    //start
     // Retrieve the product details from the Firestore data
-    List<Map<String, dynamic>> productList = (data['products'] as List<dynamic>).cast<Map<String, dynamic>>();
+    List<Map<String, dynamic>> productList =
+        (data['products'] as List<dynamic>).cast<Map<String, dynamic>>();
 
     // Build the table rows dynamically using Firestore data
     List<pw.TableRow> tableRows = [];
-    tableRows.add(_buildDetailsTableRow([' Sl No\nعدد ', ' Item Code\n رمز الصنف', 'Product Description\n وصف', 'Qty\nالكمية', 'Unit\nوحدة','Price\nالسعر','Vat(15%)\nضريبة','Line Total\nمجموع'], isHeader: true));
+    tableRows.add(_buildDetailsTableRow([
+      ' Sl No\nعدد ',
+      ' Item Code\n رمز الصنف',
+      'Product Description\n وصف',
+      'Qty\nالكمية',
+      'Unit\nوحدة',
+      'Price\nالسعر',
+      'Vat(15%)\nضريبة',
+      'Line Total\nمجموع'
+    ], isHeader: true));
 
     for (int i = 0; i < productList.length; i++) {
       Map<String, dynamic> product = productList[i];
@@ -250,10 +330,10 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
         product['quantity']?.toString() ?? '',
         product['unit'] ?? '',
         product['price']?.toString() ?? '',
-        (product['taxAmount'] ?? 0.0).toStringAsFixed(2), // Formatting VAT to one decimal place
-        (product['lineTotal']?? 0.0).toStringAsFixed(2),
+        (product['taxAmount'] ?? 0.0).toStringAsFixed(2),
+        // Formatting VAT to one decimal place
+        (product['lineTotal'] ?? 0.0).toStringAsFixed(2),
       ]));
-
     }
 
     pw.Image headerImage = pw.Image(
@@ -268,25 +348,28 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
       ),
     );
 
-
     String capitalizeWords(String input) {
       return input.replaceAllMapped(
         RegExp(r'\b\w'),
-            (match) => match.group(0)!.toUpperCase(),
+        (match) => match.group(0)!.toUpperCase(),
       );
     }
-
 
 // Add a function to get net amount in words
 
 
+
+
     String _getNetAmountInWords(Map<String, dynamic> data) {
       double netAmountDouble = double.parse(data['netAmount']?.toString() ?? '0');
-      int netAmountInt = netAmountDouble.round();
-      String netAmountInWords = Tafqeet.convert(netAmountInt.toString());
-      return capitalizeWords(netAmountInWords) ;
-    }
+      int netAmountInt = netAmountDouble.truncate();
+      int halalas = ((netAmountDouble - netAmountInt) * 100).toInt(); // Extract halalas
+      String netAmountInWords = words.NumberToWord().convert('en-in', netAmountInt);
+      String halalasInWords = words.NumberToWord().convert('en-in', halalas); // Convert halalas to words
 
+      String netAmountText = '${capitalizeWords(netAmountInWords)} Saudi Riyals and $halalasInWords Halalas';
+      return netAmountText;
+    }
 
 
 
@@ -296,21 +379,63 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
     // Build the QR code image section in the PDF
     pw.Widget qrCodeImage = await _buildQRCodeImage(qrCodeImageUrl);
 
-
-
-    pw.Widget _buildTableCell(String text) {
+    pw.Widget _buildTableCell(String label, String value, String arabicValue) {
       return pw.Padding(
-        padding: pw.EdgeInsets.all(8.0),
-        child: pw.Text(
-          text,
-          style: pw.TextStyle(
-            font: ttfArabicFont, // Applying Arabic font
-          ),
-          textDirection: pw.TextDirection.rtl, // Set text direction to right-to-left for Arabic
-          textAlign: pw.TextAlign.left, // Align Arabic text to the right
+        padding: pw.EdgeInsets.symmetric(horizontal: 5),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              label,
+              style: pw.TextStyle(
+                font: ttfArabicFont, // Applying Arabic font
+                fontSize: 10, // Adjust font size
+
+              ),
+              textDirection: pw.TextDirection.rtl, // Left-to-right for English text
+              textAlign: pw.TextAlign.left,
+            ),
+            pw.SizedBox(height: 4),
+            pw.Container(
+              width: double.infinity,
+              child: pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                    value,
+                    style: pw.TextStyle(
+                      color: pw.PdfColors.red900,
+                      font: ttfArabicFont, // Applying Arabic font
+                      fontSize: 10, // Adjust font size
+                      fontStyle: pw.FontStyle.italic,
+                    ),
+                    textDirection: pw.TextDirection.ltr, // Left-to-right for English text
+                    textAlign: pw.TextAlign.left,
+                  ),
+                  pw.Text(
+                    arabicValue,
+                    style: pw.TextStyle(
+                      color: pw.PdfColors.red900,
+                      font: ttfArabicFont, // Applying Arabic font
+                      fontSize: 10, // Adjust font size
+                      fontStyle: pw.FontStyle.italic,
+                    ),
+                    textDirection: pw.TextDirection.rtl, // Right-to-left for Arabic text
+                    textAlign: pw.TextAlign.right,
+                  ),
+                ],
+              ),
+            ),
+            pw.Divider(
+              color: pw.PdfColors.grey, // Divider color
+              height: 1, // Divider height
+              thickness: 0.5, // Divider thickness
+            ),
+          ],
         ),
       );
     }
+
 
 
     String _convertToArabic(String value) {
@@ -327,9 +452,6 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
 
       return result;
     }
-
-
-
 
     pdf.addPage(
       pw.Page(
@@ -362,7 +484,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                       margin: pw.EdgeInsets.symmetric(horizontal: 20),
                       child: pw.Container(
                         margin: pw.EdgeInsets.symmetric(vertical: 5),
-                        color: pw.PdfColors.blue50,
+                        color: pw.PdfColors.blue200,
                         height: 5,
                       ),
                     ),
@@ -374,129 +496,140 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                 child: pw.Center(
                   child: pw.Text(
                     'TAX INVOICE   فاتورة الضريبة',
-                    style: pw.TextStyle(font: ttfArabicFont, fontSize: 18, letterSpacing: 2),
-                    textDirection: pw.TextDirection.rtl, // Set text direction to right-to-left
+                    style: pw.TextStyle(
+                        font: ttfArabicFont, fontSize: 18, letterSpacing: 2),
+                    textDirection: pw.TextDirection
+                        .rtl, // Set text direction to right-to-left
                   ),
                 ),
               ),
-
-
 
               pw.Container(
                 margin: pw.EdgeInsets.symmetric(horizontal: 20),
                 child: pw.Container(
                   margin: pw.EdgeInsets.symmetric(vertical: 5),
-                  color: pw.PdfColors.blue50,
+                  color: pw.PdfColors.orange200,
                   height: 5,
                 ),
               ),
-              pw.SizedBox(height: 10),
+              pw.SizedBox(height: 5),
               pw.Row(
                 children: [
                   pw.Expanded(child: _buildDetailsColumn(data)),
                 ],
               ),
-            // pw.SizedBox(height: 100),
+               pw.SizedBox(height: 5),
               pw.Expanded(
                 flex: 0,
                 child: pw.Container(
                   margin: pw.EdgeInsets.symmetric(horizontal: 20.0),
                   height: 200,
                   child: pw.Table(
-                    border: pw.TableBorder.all(style: pw.BorderStyle.dashed, color: pw.PdfColors.blueAccent), // Add dashed outside border
+                    border: pw.TableBorder.all(
+                        style: pw.BorderStyle.dashed,
+                        color: pw.PdfColors.blueAccent),
+                    // Add dashed outside border
                     children: tableRows,
                   ),
                 ),
               ),
-
-
-              // pw.Container(
-              //   margin: pw.EdgeInsets.symmetric(horizontal: 20.0),
-              //   height: 1.0,
-              //   color: pw.PdfColors.blueAccent,
-              // ),
-             pw.SizedBox(height: 10),
-
-
-             // _buildGrossAmountSection(data),
-            //  _buildtaxAmountSection(data),
-            //   _buildNetAmountSection(data),
-            //   _buildNetAmountInWordsSection(data),
-
-
-
-
-              pw.Row(children: [
-              pw.Padding(
-                padding: pw.EdgeInsets.symmetric(horizontal: 20.0,),
-                child: pw.Container(
-
-                  height: 200,
-                //  margin: pw.EdgeInsets.only(top: 10.0), // Adjust the top margin as needed
-                  child: pw.Table(
-
-                    border: pw.TableBorder.all(style: pw.BorderStyle.dashed,color: pw.PdfColors.blueAccent),
-                    children: [
-                      // Gross Amount Row
-                      pw.TableRow(
-                        children: [
-                          _buildTableCell('Gross Amount (المبلغ الإجمالي):'),
-                          _buildTableCell(
-                            '${(double.parse(data['totalWithoutVat']?.toString() ?? '0')).toStringAsFixed(2)}               ${_convertToArabic((double.parse(data['totalWithoutVat']?.toString() ?? '0')).toStringAsFixed(2))}',
-                          ),
-                        ],
-                      ),
-
-                      // Total VAT(15%) Row
-                      pw.TableRow(
-                        children: [
-                          _buildTableCell('Total VAT (ضريبة):'),
-                          _buildTableCell(
-                            '${(double.parse(data['totalWithoutVat']?.toString() ?? '0') * 0.15).toStringAsFixed(2)}               ${_convertToArabic((double.parse(data['totalWithoutVat']?.toString() ?? '0') * 0.15).toStringAsFixed(2))}',
-                          ),
-                        ],
-                      ),
-
-
-                      // Net Amount Row
-                      pw.TableRow(
-                        children: [
-                          _buildTableCell('Net Amount (المجموع الصافي):'),
-                          _buildTableCell(
-                            '${data['netAmount']?.toString() ?? ''}               ${_convertToArabic(data['netAmount']?.toString() ?? '')}',
-                          ),
-                        ],
-                      ),
-
-                      // In Words Row
-                      pw.TableRow(
-                        children: [
-                          _buildTableCell('In Words (بكلمات):'),
-                          _buildTableCell(
-                            '${_getNetAmountInWords(data)}',
-                          ),
-                        ],
-                      ),
-
-                    ],
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                children: [
+                  pw.Padding(
+                    padding: pw.EdgeInsets.only(left: 0), // Set left padding to 0
+                    child: pw.Container(
+                      height: 200,
+                      width: 200,
+                      child: qrCodeImage,
+                    ),
                   ),
-                ),
-              ),
-                pw.Expanded(
-                  child:
-                qrCodeImage,
-                ),
-          ]
+                  pw.Padding(
+                    padding: pw.EdgeInsets.only(left: 223), // Add space between QR code and table
+                    child: pw.Container(
+                      height: 200,
+                      width: 150,
+                      child: pw.Table(
+                        border: pw.TableBorder.all(
+                            style: pw.BorderStyle.dashed,
+                            color: pw.PdfColors.blueAccent),
+                        children: [
+                          // Gross Amount Row
+                          pw.TableRow(
+                            children: [
+                              _buildTableCell(
+                                  'Gross Amount (المبلغ الإجمالي):',
+                                  (double.parse(data['totalWithoutVat']?.toString() ?? '0')).toStringAsFixed(2),
+                                  _convertToArabic((double.parse(data['totalWithoutVat']?.toString() ?? '0')).toStringAsFixed(2))
+                              ),
+                            ],
+                          ),
+                          // Total VAT(15%) Row
+                          pw.TableRow(
+                            children: [
+                              _buildTableCell(
+                                  'Total VAT (ضريبة):',
+                                  (double.parse(data['totalWithoutVat']?.toString() ?? '0') * 0.15).toStringAsFixed(2),
+                                  _convertToArabic((double.parse(data['totalWithoutVat']?.toString() ?? '0') * 0.15).toStringAsFixed(2))
+                              ),
+                            ],
+                          ),
+                          // Net Amount Row
+                          pw.TableRow(
+                            children: [
+                              _buildTableCell(
+                                  'Net Amount (المجموع الصافي):',
+                                  (double.parse(data['netAmount']?.toString() ?? '0')).toStringAsFixed(2),
+                                  _convertToArabic(data['netAmount']?.toString() ?? '')
+                              ),
+                            ],
+                          ),
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
-              // pw.Center(
-              //   child: qrCodeImage,
-              // ),
+
+
+
 
               pw.Expanded(
                 flex: 1,
                 child: pw.SizedBox(),
               ),
+              pw.Container(
+                padding: pw.EdgeInsets.symmetric(horizontal: 20), // Add horizontal padding
+                child: pw.RichText(
+                  text: pw.TextSpan(
+                    children: [
+                      pw.TextSpan(
+                        text: 'Total Amount In Words: ',
+                        style: pw.TextStyle(
+                          font: ttfFontBold,
+                          fontSize: 14,
+                          fontWeight: pw.FontWeight.bold,
+                          decoration: pw.TextDecoration.underline,
+                          decorationColor: pw.PdfColors.orange900,// Underline the heading text
+                        ),
+                      ),
+                      pw.TextSpan(
+                        text: _getNetAmountInWords(data),
+                        style: pw.TextStyle(
+                          font: ttfArabicFont,
+                          fontSize: 13,
+                          fontStyle: pw.FontStyle.italic, // Italicize the value text
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+
+
               pw.Padding(
                 padding: pw.EdgeInsets.only(left: 20, top: 10),
                 child: pw.Row(
@@ -540,11 +673,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
     await printing.Printing.layoutPdf(onLayout: (format) => pdfBytes);
 
     print('PDF generated successfully!');
-
-
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -552,9 +681,16 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
       backgroundColor: Colors.lightBlueAccent,
       appBar: AppBar(
         backgroundColor: Colors.lightBlueAccent,
-        title: Center(child: Text('Invoice Receipts',style: TextStyle(
-          color: Colors.white,fontSize: 50,fontWeight: FontWeight.w700
-        ),)),
+        title: Center(
+          child: Text(
+            'Invoice Receipts',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 50,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _invoiceStream,
@@ -564,7 +700,13 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
           }
 
           if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+              ],
+            );
           }
 
           var documents = snapshot.data!.docs;
@@ -573,8 +715,10 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
             itemCount: documents.length,
             itemBuilder: (context, index) {
               var sortedDocuments = documents.toList()
-                ..sort((a, b) => (b['invoiceNo'] as String).compareTo(a['invoiceNo'] as String));
+                ..sort((a, b) => (b['invoiceNo'] as String)
+                    .compareTo(a['invoiceNo'] as String));
               var data = sortedDocuments[index].data() as Map<String, dynamic>;
+              var documentId = sortedDocuments[index].id;
               return Card(
                 elevation: 4.0,
                 margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -583,49 +727,107 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                 ),
                 child: InkWell(
                   onTap: () async => await _generatePDF(data),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Invoice No: ${data['invoiceNo']}',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Invoice No: ${data['invoiceNo']}',
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8.0),
+                              Text(
+                                'Customer: ${data['customerName']}',
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              SizedBox(height: 8.0),
+                              Text(
+                                'Date: ${data['invoiceDate']}',
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(height: 8.0),
-                        Text(
-                          'Customer: ${data['customerName']}',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        SizedBox(height: 8.0),
-                        Text(
-                          'Date: ${data['invoiceDate']}',
-                          style: TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Invoice(
+                                userEmail: widget.userEmail,
+                                documentId: documentId,
+                                invoiceData: data,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () async {
+                          bool confirmDelete = await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Confirm Delete"),
+                                content: Text(
+                                    "Are you sure you want to delete this invoice?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                    child: Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                    child: Text("Yes"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+                          if (confirmDelete == true) {
+                            await FirebaseFirestore.instance
+                                .collection('invoices')
+                                .doc(documentId)
+                                .delete();
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Invoice deleted'),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ),
               );
             },
           );
-
         },
       ),
     );
   }
-
-
 }
-
-
-

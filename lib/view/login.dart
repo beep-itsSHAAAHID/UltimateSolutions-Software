@@ -103,24 +103,12 @@ class _LoginState extends State<Login> {
       print('User ID: ${userCredential.user?.uid}');
       print('Email: ${userCredential.user?.email}');
 
-      // Get SharedPreferences instance
+      // Save user's role and email using SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? userEmail = prefs.getString('userEmail');
-      String? userRole = prefs.getString('userRole');
-      print('User email from SharedPreferences: $userEmail');
-      print('User role from SharedPreferences: $userRole');
+      prefs.setString('userRole', selectedRole);
+      prefs.setString('userEmail', userCredential.user?.email ?? '');
 
-      // Check if the selected role matches the role associated with the user's email
-      if (!isRoleMatching(selectedRole, userCredential.user?.email)) {
-        // Role mismatch, log out the user and show an error message
-        await _auth.signOut();
-        print('Role mismatch: User does not have the selected role');
-        // Show an error message to the user
-        showSnackbar('Role mismatch: User does not have the selected role');
-        return;
-      }
-
-      // Navigate based on the role
+      // Navigate to home page
       navigateToHomePage(userCredential.user?.email ?? '');
 
       // Show a success message
@@ -179,14 +167,9 @@ class _LoginState extends State<Login> {
 
   void navigateToHomePage(String? userEmail) {
     if (userEmail != null) {
-      if (isRoleMatching('admin', userEmail)) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: userEmail,)));
-      } else if (isRoleMatching('user', userEmail)) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: userEmail,)));
-      }
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: userEmail)));
     }
   }
-
 
   void showSnackbar(String message) {
     if (mounted) {
@@ -198,14 +181,4 @@ class _LoginState extends State<Login> {
       );
     }
   }
-}
-
-bool isRoleMatching(String selectedRole, String? userEmail) {
-  // Check if the selected role matches the role in the user's email domain
-  if (selectedRole == 'admin' && userEmail?.contains('@admin.ultimategcc.com') == true) {
-    return true;
-  } else if (selectedRole == 'user' && userEmail?.contains('@salesman.ultimategcc.com') == true) {
-    return true;
-  }
-  return false;
 }

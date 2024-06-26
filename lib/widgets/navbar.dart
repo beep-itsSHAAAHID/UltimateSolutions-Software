@@ -3,7 +3,7 @@
 // import 'package:ultimatesolutions/view/addcustomer.dart';
 // import 'package:ultimatesolutions/view/checkout.dart';
 // import 'package:ultimatesolutions/view/delivery.dart';
-// import 'package:ultimatesolutions/view/purchase.dart';
+// import 'package:ultimatesolutions/view/add_purchase.dart';
 // import 'package:ultimatesolutions/view/salesnav.dart';
 // import 'package:ultimatesolutions/view/viewallactivities.dart';
 //

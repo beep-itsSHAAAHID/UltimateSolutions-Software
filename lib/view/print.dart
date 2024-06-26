@@ -5,8 +5,16 @@ import 'package:flutter/material.dart';
 
 import 'delivery/deliverynote.dart';
 
+class Print extends StatefulWidget {
+  final String userEmail;
 
-class Print extends StatelessWidget {
+  Print({required this.userEmail});
+
+  @override
+  State<Print> createState() => _PrintState();
+}
+
+class _PrintState extends State<Print> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,11 +34,11 @@ class Print extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InkWell(onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context)=>DeliveryNotes()));
-
-          },
+          InkWell(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => DeliveryNotes()));
+            },
             child: Container(
               margin: EdgeInsets.all(16),
               padding: EdgeInsets.all(16),
@@ -46,16 +54,19 @@ class Print extends StatelessWidget {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   // Add your content for Delivery Note here
-                  // Example:
-
                 ],
               ),
             ),
           ),
-          InkWell(onTap: (){
-            Navigator.push(context,
-            MaterialPageRoute(builder: (context)=>InvoiceReceipt()));
-          },
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => InvoiceReceipt(userEmail: widget.userEmail),
+                ),
+              );
+            },
             child: Container(
               margin: EdgeInsets.all(16),
               padding: EdgeInsets.all(16),
@@ -71,17 +82,19 @@ class Print extends StatelessWidget {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   // Add your content for Invoice here
-                  // Example:
-
                 ],
               ),
             ),
           ),
-
-          InkWell(onTap: (){
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context)=>RfqReceipt()));
-          },
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RfqReceipt(),
+                ),
+              );
+            },
             child: Container(
               margin: EdgeInsets.all(16),
               padding: EdgeInsets.all(16),
@@ -96,19 +109,13 @@ class Print extends StatelessWidget {
                     'Quotations',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  // Add your content for Invoice here
-                  // Example:
-
+                  // Add your content for Quotations here
                 ],
               ),
             ),
           ),
-
         ],
       ),
     );
   }
 }
-
-
-

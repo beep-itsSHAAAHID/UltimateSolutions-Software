@@ -58,7 +58,7 @@ class ZatcaFatooraDataModel {
 
   Widget generateQrCodeWidget() {
     String qrCode = generateZatcaFatooraBase64Code();
-    return QrImageView(data: qrCode, version: QrVersions.auto, size: 200.0);
+    return QrImageView(data: qrCode, version: QrVersions.auto, size: 100.0);
   }
 
   Uint8List hexStringToBytes(String hexString) {

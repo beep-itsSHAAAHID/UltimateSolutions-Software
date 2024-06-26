@@ -1,8 +1,8 @@
-import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:UltimateSolutions/view/salesnav.dart';
+import '../salesnav.dart';
+
 
 class AddCustomer extends StatefulWidget {
   final String userEmail;
@@ -23,6 +23,7 @@ class _AddCustomerState extends State<AddCustomer> {
   TextEditingController _telephoneNumberController = TextEditingController();
   TextEditingController _vtNumberController = TextEditingController();
   TextEditingController _deliveryLocationController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
 
   List<String> _customerTypeOptions = ['Cash', 'Credit', 'Bank Transfer', 'Performa Invoice'];
   String _selectedCustomerType = 'Cash';
@@ -77,11 +78,12 @@ class _AddCustomerState extends State<AddCustomer> {
       String vtNumber = _vtNumberController.text;
       String customerType = _selectedCustomerType;
       String deliveryLocation = _deliveryLocationController.text;
+      String email = _emailController.text;
 
-      // Add customer data to Firestore
+      // Add customer data to Firestore, including the userEmail of the person who added the customer
       await FirebaseFirestore.instance.collection('customers').add({
         'customerCode': customerCode,
-        'arabicName':arabicName,
+        'arabicName': arabicName,
         'customerName': customerName,
         'contactPerson': contactPerson,
         'address': address,
@@ -90,8 +92,12 @@ class _AddCustomerState extends State<AddCustomer> {
         'vtNumber': vtNumber,
         'customerType': customerType,
         'deliveryLocation': deliveryLocation,
+        'email': email,
         'createdAt': FieldValue.serverTimestamp(),
+        'addedBy': widget.userEmail,  // Include the user email of the person adding the customer
       });
+
+
       Navigator.push(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: widget.userEmail)));
 
     } catch (e) {
@@ -142,6 +148,7 @@ class _AddCustomerState extends State<AddCustomer> {
               buildTextField('Enter Arabic Name', _arabicNameController),
               buildTextField('Enter Contact Person', _contactPersonController),
               buildTextField('Enter Address', _addressController),
+              buildTextField('Enter Email', _emailController),
               buildTextField('Enter Mobile No.', _mobileNumberController),
               buildTextField('Enter Telephone No.', _telephoneNumberController),
               buildTextField('Enter Vat No.', _vtNumberController),
@@ -165,11 +172,11 @@ class _AddCustomerState extends State<AddCustomer> {
               SizedBox(height: 10),
               ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(Colors.blueAccent)
+                  backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
                 ),
                 onPressed: _submitCustomerData,
-                child: Text('Submit',style: TextStyle(color: Colors.white)),
-              )
+                child: Text('Submit', style: TextStyle(color: Colors.white)),
+              ),
             ],
           ),
         ),
@@ -192,7 +199,12 @@ class _AddCustomerState extends State<AddCustomer> {
     );
   }
 
-  Widget buildDropdownMenu({required String labelText, required String value, required void Function(String?) onChanged, required List<DropdownMenuItem<String>> items}) {
+  Widget buildDropdownMenu({
+    required String labelText,
+    required String value,
+    required void Function(String?) onChanged,
+    required List<DropdownMenuItem<String>> items,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: DropdownButtonFormField<String>(

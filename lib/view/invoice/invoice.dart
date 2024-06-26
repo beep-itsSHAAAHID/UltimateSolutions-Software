@@ -6,14 +6,18 @@ import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../customer/customerselection.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:UltimateSolutions/models/qrgenerator.dart';
 
 class Invoice extends StatefulWidget {
   final String userEmail;
+  final String? documentId;
+  final Map<String, dynamic>? invoiceData;
 
-  const Invoice({Key? key, required this.userEmail}) : super(key: key);
+  const Invoice({Key? key, required this.userEmail, this.documentId, this.invoiceData}) : super(key: key);
+
   @override
   _InvoiceState createState() => _InvoiceState();
 }
@@ -35,14 +39,73 @@ class _InvoiceState extends State<Invoice> {
   TextEditingController vatExclusiveController = TextEditingController();
   List<ProductControllerGroup> products = [ProductControllerGroup()];
   String? selectedModeOfPayment;
-  List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece','Each','Box'];
+  List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece', 'Each', 'Box'];
+  List<String> modeOfPaymentValues = ['Cash', 'Credit', 'Bank Transfer', 'Proforma Invoice'];
   double totalLineTotal = 0.0;
 
   final GlobalKey _globalKey = GlobalKey();
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    _setNextInvoiceNumber();
+    _setCurrentDate();
+    if (widget.invoiceData != null) {
+      _populateFields(widget.invoiceData!);
+    }
+  }
 
+  void _setCurrentDate() {
+    final DateTime now = DateTime.now();
+    final String formattedDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    invoiceDateController.text = formattedDate;
+  }
+
+  Future<void> _setNextInvoiceNumber() async {
+    // Fetch the last saved invoice number from Firestore
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('invoices')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .get();
+
+    int nextInvoiceNo = 200060; // Default starting number
+
+    if (snapshot.docs.isNotEmpty) {
+      final lastInvoice = snapshot.docs.first.data() as Map<String, dynamic>;
+      final lastInvoiceNo = int.tryParse(lastInvoice['invoiceNo'] ?? '200060');
+      nextInvoiceNo = (lastInvoiceNo ?? 200060) + 1;
+    }
+
+    setState(() {
+      invoiceNoController.text = '$nextInvoiceNo';
+    });
+  }
+
+  void _populateFields(Map<String, dynamic> data) {
+    invoiceDateController.text = data['invoiceDate'] ?? '';
+    entryDateController.text = data['entryDate'] ?? '';
+    invoiceNoController.text = data['invoiceNo'] ?? '';
+    deliveryNoteNoController.text = data['deliveryNoteNo'] ?? '';
+    poNoController.text = data['poNo'] ?? '';
+    vatNoController.text = data['vatNo'] ?? '';
+    customerCodeController.text = data['customerCode'] ?? '';
+    customerNameController.text = data['customerName'] ?? '';
+    arabicNameController.text = data['arabicName'] ?? '';
+    addressController.text = data['address'] ?? '';
+    deliveryPlaceController.text = data['deliveryPlace'] ?? '';
+    netAmountController.text = data['netAmount'] ?? '';
+    vatExclusiveController.text = data['totalWithoutVat'] ?? '';
+    selectedModeOfPayment = data['modeOfPayment'] ?? '';
+    if (data['products'] != null) {
+      products = (data['products'] as List)
+          .map((item) => ProductControllerGroup.fromMap(item))
+          .toList();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Add listeners to controllers
     for (int i = 0; i < products.length; i++) {
       products[i].priceController.addListener(() {
@@ -54,7 +117,6 @@ class _InvoiceState extends State<Invoice> {
         updateLineTotal(i);
         updateNetAmount();
       });
-
     }
     return Scaffold(
       appBar: PreferredSize(
@@ -99,7 +161,7 @@ class _InvoiceState extends State<Invoice> {
                       customerNameController.text = selectedCustomer['customerName'] ?? '';
                       addressController.text = selectedCustomer['address'] ?? '';
                       vatNoController.text = selectedCustomer['vtNumber'] ?? '';
-                      arabicNameController.text = selectedCustomer['arabicName'] ??'';
+                      arabicNameController.text = selectedCustomer['arabicName'] ?? '';
                       // Update other fields as needed
                     });
                   }
@@ -129,11 +191,6 @@ class _InvoiceState extends State<Invoice> {
               buildDateFormField(
                 controller: invoiceDateController,
                 label: 'Invoice Date',
-              ),
-              SizedBox(height: 16),
-              buildDateFormField(
-                controller: entryDateController,
-                label: 'Entry Date',
               ),
               SizedBox(height: 16),
               buildTextFormField(
@@ -166,7 +223,6 @@ class _InvoiceState extends State<Invoice> {
                 child: Text('Add More Products'),
               ),
               SizedBox(height: 16),
-
               Row(
                 children: [
                   SizedBox(height: 16),
@@ -175,8 +231,7 @@ class _InvoiceState extends State<Invoice> {
                     label: 'Net Amount',
                     readOnly: true,
                   ),
-
-                  SizedBox(height: 16,width: 10,),
+                  SizedBox(height: 16, width: 10),
                   buildTextFormFieldForNetAmount(
                     controller: vatExclusiveController,
                     label: 'Total Without VAT',
@@ -191,12 +246,12 @@ class _InvoiceState extends State<Invoice> {
                         sellerName: "AMAN AND JUDEH FOUNDATION FOR PACKAGING",
                         vatRegistrationNumber: "302059123900003",
                         invoiceStamp: DateTime.now().toString(),
-                        totalInvoice: getNetAmount().toString() ,
+                        totalInvoice: getNetAmount().toString(),
                         totalVat: getTotalVat().toString(),
                       ).generateQrCodeWidget(),
                     ),
                   ),
-            ],
+                ],
               ),
               SizedBox(height: 16),
               buildDropdownButton(
@@ -207,7 +262,7 @@ class _InvoiceState extends State<Invoice> {
                     selectedModeOfPayment = newValue;
                   });
                 },
-                items: ['Cash', 'Credit', 'Bank Transfer', 'Proforma Invoice']
+                items: modeOfPaymentValues
                     .map((mode) => DropdownMenuItem<String>(
                   value: mode,
                   child: Text(mode),
@@ -220,7 +275,7 @@ class _InvoiceState extends State<Invoice> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                 ),
-                child: Icon(Icons.check) ,
+                child: Icon(Icons.check),
               ),
             ],
           ),
@@ -240,9 +295,8 @@ class _InvoiceState extends State<Invoice> {
     return totalWithoutVat;
   }
 
-
   double getTotalVat() {
-    double totalVat = 0.0;
+    double totalVat = 0.00;
     for (int i = 0; i < products.length; i++) {
       double vatAmount = double.tryParse(products[i].taxAmountController.text) ?? 0.0;
       totalVat += vatAmount;
@@ -332,7 +386,7 @@ class _InvoiceState extends State<Invoice> {
       String? qrCodeImageUrl = await captureAndSaveImage();
 
       // Add the main invoice data to Firestore
-      await FirebaseFirestore.instance.collection('invoices').add({
+      await FirebaseFirestore.instance.collection('invoices').doc(widget.documentId).set({
         'timestamp': FieldValue.serverTimestamp(),
         'invoiceDate': invoiceDateController.text,
         'entryDate': entryDateController.text,
@@ -348,7 +402,7 @@ class _InvoiceState extends State<Invoice> {
         'deliveryPlace': deliveryPlaceController.text,
         'modeOfPayment': selectedModeOfPayment,
         'netAmount': netAmountController.text,
-        'qrCodeImageUrl': qrCodeImageUrl,  // Add the QR code image URL
+        'qrCodeImageUrl': qrCodeImageUrl, // Add the QR code image URL
         'products': productsData, // Add the list of products
       });
 
@@ -366,7 +420,6 @@ class _InvoiceState extends State<Invoice> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
-
 
   Widget buildTextFormField({
     required TextEditingController controller,
@@ -417,7 +470,7 @@ class _InvoiceState extends State<Invoice> {
         controller: controller,
         enabled: enabled,
         onTap: onTap,
-        onChanged: onChanged,  // Add this onChanged callback
+        onChanged: onChanged, // Add this onChanged callback
         decoration: InputDecoration(
           labelText: labelText,
           suffixIcon: showCalendarIcon
@@ -469,7 +522,6 @@ class _InvoiceState extends State<Invoice> {
       ),
     );
   }
-
 
   Widget buildVATRadioButtons(int index, List<String> vatValues) {
     return Column(
@@ -527,36 +579,28 @@ class _InvoiceState extends State<Invoice> {
           },
         ),
         buildDropdown('Unit', products[index].unitController, unitDropdownValues, products[index].selectedUnit),
-        buildTextField('Quantity', products[index].qtyController,onChanged: (_) { updateLineTotal(index);
+        buildTextField('Quantity', products[index].qtyController, onChanged: (_) {
+          updateLineTotal(index);
           updateNetAmount();
-        }
-    ),
+        }),
         // Price Field
-        buildTextField('Price', products[index].priceController,
-            onChanged: (value) {
-              updateTaxAmount(index);
-              updateLineTotal(index);
-              updateNetAmount();
-            }
-        ),
-
-
+        buildTextField('Price', products[index].priceController, onChanged: (value) {
+          updateTaxAmount(index);
+          updateLineTotal(index);
+          updateNetAmount();
+        }),
         // VAT Radio Buttons
         buildVATRadioButtons(index, vatValues),
-
         // Tax Amount Field
         buildTextField('Tax Amount', products[index].taxAmountController, onChanged: (value) {
           updateLineTotal(index);
           updateTotalLineTotal(); // Update the totalLineTotal when the tax amount changes
         }),
-
         // Line Total Field
-        buildTextField('Line Total', products[index].lineTotalController,
-            onChanged: (value) {
-              updateLineTotal(index);
-              updateTotalLineTotal(); // Update the totalLineTotal when the line total changes
-            }),
-
+        buildTextField('Line Total', products[index].lineTotalController, onChanged: (value) {
+          updateLineTotal(index);
+          updateTotalLineTotal(); // Update the totalLineTotal when the line total changes
+        }),
       ],
     );
   }
@@ -572,7 +616,6 @@ class _InvoiceState extends State<Invoice> {
     netAmountController.text = totalLineTotal.toString();
   }
 
-
   void updateTaxAmount(int index) {
     double lineTotal = double.tryParse(products[index].lineTotalController.text) ?? 0.0;
     double vatPercentage = double.tryParse(products[index].selectedVAT.replaceAll('%', '')) ?? 0.0;
@@ -583,7 +626,7 @@ class _InvoiceState extends State<Invoice> {
     print('VAT Percentage: $vatPercentage');
 
     // Calculate tax amount (line total * vat percentage / 100)
-    double taxAmount = price*quantity*0.15;
+    double taxAmount = price * quantity * 0.15;
 
     // Format tax amount to display only the first two digits after the decimal point
     String formattedTaxAmount = taxAmount.toStringAsFixed(2);
@@ -598,8 +641,6 @@ class _InvoiceState extends State<Invoice> {
     // Update line total
     updateLineTotal(index);
   }
-
-
 
   void updateLineTotal(int index) {
     double price = double.tryParse(products[index].priceController.text) ?? 0.0;
@@ -656,22 +697,22 @@ class _InvoiceState extends State<Invoice> {
     required TextEditingController controller,
     required String label,
     String? initialValue,
-    bool readOnly = false,  // Add a flag for read-only
+    bool readOnly = false, // Add a flag for read-only
   }) {
     return Container(
-      width: 150,  // Make the container take the full width
+      width: 150, // Make the container take the full width
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.red),  // Add a border to make it look like a square
-        borderRadius: BorderRadius.circular(10.0),  // Add border radius for a rounded look
+        border: Border.all(color: Colors.red), // Add a border to make it look like a square
+        borderRadius: BorderRadius.circular(10.0), // Add border radius for a rounded look
       ),
       child: TextFormField(
         controller: controller,
-        readOnly: readOnly,  // Set it as read-only
-        style: TextStyle(fontSize: 20,fontWeight: FontWeight.w900),
+        readOnly: readOnly, // Set it as read-only
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
         decoration: InputDecoration(
           labelText: label,
-          border: InputBorder.none,  // Remove the default input border
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),  // Add padding for better appearance
+          border: InputBorder.none, // Remove the default input border
+          contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Add padding for better appearance
         ),
       ),
     );
@@ -693,12 +734,9 @@ class _InvoiceState extends State<Invoice> {
       items: items,
     );
   }
-
 }
 
 class ProductControllerGroup {
-
-
   TextEditingController codeController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController qtyController = TextEditingController();
@@ -709,4 +747,20 @@ class ProductControllerGroup {
   String selectedVAT = '';
   TextEditingController lineTotalController = TextEditingController();
   String selectedModeOfPayment = '';
+
+  ProductControllerGroup();
+
+  factory ProductControllerGroup.fromMap(Map<String, dynamic> map) {
+    return ProductControllerGroup()
+      ..codeController.text = map['code'] ?? ''
+      ..nameController.text = map['name'] ?? ''
+      ..qtyController.text = (map['quantity']?.toString() ?? '0')
+      ..taxAmountController.text = (map['taxAmount']?.toString() ?? '0.0')
+      ..unitController.text = map['unit'] ?? ''
+      ..selectedUnit = [map['unit'] ?? 'Unit']
+      ..priceController.text = (map['price']?.toString() ?? '0.0')
+      ..selectedVAT = map['vat'] ?? ''
+      ..lineTotalController.text = (map['lineTotal']?.toString() ?? '0.0')
+      ..selectedModeOfPayment = map['selectedModeOfPayment'] ?? '';
+  }
 }

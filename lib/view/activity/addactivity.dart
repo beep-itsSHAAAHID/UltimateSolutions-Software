@@ -24,6 +24,8 @@ class _AddActivityState extends State<AddActivity> {
   bool _sampleDelivery = false;
   bool _sales = false;
   bool _followUp = false;
+  bool _delivery = false;
+  bool _newCustomer = false;
 
   @override
   Widget build(BuildContext context) {
@@ -36,14 +38,16 @@ class _AddActivityState extends State<AddActivity> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            buildTextField('Customer Name', _customerNameController, onTap: selectCustomer),
-            buildTextField('Product Name', _productNameController, onTap: selectProduct),
-            buildTextField('Quantity', _quantityController),
+
             buildCheckbox("Sample Collection", _sampleCollection, 'Sample Collection'),
             buildCheckbox("Sample Delivery", _sampleDelivery, 'Sample Delivery'),
+            buildCheckbox("Delivery", _delivery, 'Delivery'),
+            buildCheckbox("New Customer", _newCustomer, 'New Customer'),
             buildCheckbox("Sales", _sales, 'Sales'),
             buildCheckbox("Follow-up", _followUp, 'Follow-up'),
-            buildTextField('Activity', _activityController, editable: !_sampleCollection && !_sampleDelivery && !_sales && !_followUp),
+            buildTextField('Activity', _activityController, editable: !_sampleCollection && !_sampleDelivery && !_sales && !_followUp
+                && !_delivery && !_newCustomer) ,
+            buildTextField('Customer Name', _customerNameController),
             buildTextField('Customer Remarks', _customerRemarksController),
             buildTextField('Salesman Remarks', _salesmanRemarksController),
             SizedBox(height: 16),
@@ -90,6 +94,8 @@ class _AddActivityState extends State<AddActivity> {
               _sampleDelivery = false;
               _sales = false;
               _followUp = false;
+              _delivery = false;
+              _newCustomer = false;
 
               // Update the selected checkbox
               if (newValue != null) {
@@ -101,6 +107,12 @@ class _AddActivityState extends State<AddActivity> {
                   _sales = newValue;
                 } else if (label == "Follow-up") {
                   _followUp = newValue;
+                }
+                else if (label == "Delivery") {
+                  _delivery = newValue;
+                }
+                else if (label == "New Customer") {
+                  _newCustomer = newValue;
                 }
               }
 
@@ -118,31 +130,6 @@ class _AddActivityState extends State<AddActivity> {
     );
   }
 
-  void selectCustomer() async {
-    final selectedCustomer = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CustomerSelectionPage(),
-      ),
-    );
-
-    if (selectedCustomer != null) {
-      _customerNameController.text = selectedCustomer['customerName'];
-    }
-  }
-
-  void selectProduct() async {
-    final selectedProduct = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProductSelectionPage(),
-      ),
-    );
-
-    if (selectedProduct != null) {
-      _productNameController.text = selectedProduct['productName'];
-    }
-  }
 
   void navigateToSalesNav() {
     String userEmail = widget.userEmail; // Store userEmail from widget
@@ -168,8 +155,6 @@ class _AddActivityState extends State<AddActivity> {
       // Create a new document in the 'activities' collection
       await firestore.collection('activities').add({
         'customerName': _customerNameController.text,
-        'productName': _productNameController.text,
-        'quantity': _quantityController.text,
         'activity': _activityController.text,
         'customerRemarks': _customerRemarksController.text,
         'salesmanRemarks': _salesmanRemarksController.text,

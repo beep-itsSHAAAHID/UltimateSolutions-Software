@@ -44,6 +44,9 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
     final fontDataBold = await rootBundle.load("lib/assets/fonts/Poppins-Bold.ttf");
     final ttfFontBold = pw.Font.ttf(fontDataBold);
 
+    final ttfArabicFont = pw.Font.ttf(await rootBundle.load("lib/assets/fonts/HacenTunisia.ttf"));
+
+
 
 
 
@@ -65,14 +68,17 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
     }
 
 
-    pw.TableRow _buildDetailsTableRow(List<String> rowData, {bool isHeader = false}) {
+    pw.TableRow _buildDetailsTableRow(List<String> rowData,
+        {bool isHeader = false}) {
       return pw.TableRow(
         children: rowData.map((cellData) {
           return pw.Container(
-            padding: pw.EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0), // Increase horizontal padding
-            decoration: isHeader ? pw.BoxDecoration(color: pw.PdfColors.blue50) : null,
+            padding: pw.EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
+            // Increase horizontal padding
+            decoration:
+            isHeader ? pw.BoxDecoration(color: pw.PdfColors.blue50) : null,
             child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
               children: _wrapText(cellData),
             ),
           );
@@ -80,61 +86,123 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
       );
     }
 
-    pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false}) {
-      return pw.Container(
-        margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-        child: pw.RichText(
-          text: pw.TextSpan(
+    // pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false}) {
+    //   return pw.Container(
+    //     margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+    //     child: pw.RichText(
+    //       text: pw.TextSpan(
+    //         children: [
+    //           pw.TextSpan(
+    //             text: '$label ',
+    //             style: pw.TextStyle(font: ttfFont),
+    //           ),
+    //           pw.TextSpan(
+    //             text: '${value ?? ''}',
+    //             style: pw.TextStyle(font: isBold ? ttfFontBold : ttfFont),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   );
+    // }
+
+
+    pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false, bool isCustomerName = false, bool isArabicName = false}) {
+      return pw.Table(
+        border: pw.TableBorder(
+          top: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
+          bottom: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
+          left: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
+          right: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
+          horizontalInside: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dashed),
+          verticalInside: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dashed),
+        ),
+        columnWidths: {
+          0: pw.FixedColumnWidth(100), // Adjust the width as needed
+          1: pw.FlexColumnWidth(),
+        },
+        children: [
+          pw.TableRow(
             children: [
-              pw.TextSpan(
-                text: '$label ',
-                style: pw.TextStyle(font: ttfFont),
+              pw.Container(
+                padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3), // Reduce padding
+                child: pw.Text(
+                  label,
+                  style: pw.TextStyle(
+                    font: isArabicName ? ttfArabicFont : ttfFontBold,
+                    fontWeight: isBold ? pw.FontWeight.bold : null,
+                    fontSize: 10, // Reduce font size
+                  ),
+                  textDirection: isArabicName ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+                  textAlign: pw.TextAlign.left,
+                ),
               ),
-              pw.TextSpan(
-                text: '${value ?? ''}',
-                style: pw.TextStyle(font: isBold ? ttfFontBold : ttfFont),
+              pw.Container(
+                padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3), // Reduce padding
+                constraints: pw.BoxConstraints(maxWidth: 300), // Adjust maxWidth for better text wrapping
+                child: pw.Text(
+                  '${value ?? ''}',
+                  style: pw.TextStyle(
+                    font: ttfArabicFont, // Use Arabic font for the value
+                    fontWeight: pw.FontWeight.bold,
+                    letterSpacing: 0, // No letter spacing
+                    fontSize: 10, // Reduce font size
+                  ),
+                  textDirection: isCustomerName ? pw.TextDirection.ltr : pw.TextDirection.rtl,
+                  textAlign: pw.TextAlign.left, // Align Arabic text to the right
+                  maxLines: isCustomerName ? 3 : 2, // Allow for more lines
+                  overflow: pw.TextOverflow.visible, // Clip overflow text
+                  softWrap: true, // Ensure text wraps properly
+                ),
               ),
             ],
           ),
-        ),
+        ],
       );
     }
 
+
+
     pw.Widget _buildDetailsColumn(Map<String, dynamic> data) {
-      return pw.Row(
-        children: [
-          pw.Expanded(
-            flex: 3,
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
+      return pw.Container(
+        margin: pw.EdgeInsets.only(left: 17,right: 17), // Add margins to the entire table
+        child: pw.Table(
+
+          columnWidths: {
+            0: pw.FlexColumnWidth(1),
+            1: pw.FlexColumnWidth(1),
+          },
+          children: [
+            pw.TableRow(
               children: [
-                _buildDetailText('Customer Code:', data['customerCode'], isBold: true),
-                _buildDetailText('Customer Name:', data['customerName'], isBold: true),
-                _buildDetailText('Address:', data['address'], isBold: true),
-                _buildDetailText('VAT Number:', data['vatNo'], isBold: true),
+                pw.Container(
+                  padding: pw.EdgeInsets.all(5), // Reduce padding
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailText('Customer Name:', data['customerName'], isBold: true, isCustomerName: true),
+                      _buildDetailText(' :اسم الزبون', data['arabicName'], isBold: true, isArabicName: true),
+                      _buildDetailText('VAT Number:', data['vatNo'], isBold: true),
+                      _buildDetailText('Address:', data['address'], isBold: true),
+                    ],
+                  ),
+                ),
+                pw.Container(
+                  padding: pw.EdgeInsets.all(5), // Reduce padding
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailText('Payment Term:', data['modeOfPayment'], isBold: true),
+                      _buildDetailText('Date:', data['invoiceDate'], isBold: true),
+                      _buildDetailText('Invoice No.:', data['invoiceNo'], isBold: true),
+                      _buildDetailText('Po No.:', data['poNo'], isBold: true),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-          pw.SizedBox(width: 20),
-          pw.Container(
-            height: 100,
-            width: 5,
-            color: pw.PdfColors.blue50,
-          ),
-          pw.SizedBox(width: 10),
-          pw.Expanded(
-            flex: 3,
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildDetailText('Delivery Note No:', data['deliveryNoteNo'], isBold: true),
-                _buildDetailText('Date:', data['date'], isBold: true),
-                _buildDetailText('Po No.:', data['poNo'], isBold: true),
-                _buildDetailText('Ref No.:', data['refNo'], isBold: true),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 
