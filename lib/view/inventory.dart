@@ -29,7 +29,7 @@ class _InventoryState extends State<Inventory> with SingleTickerProviderStateMix
     Map<String, Map<String, dynamic>> inventory = {};
 
     // Fetch purchase data
-    QuerySnapshot purchaseSnapshot = await FirebaseFirestore.instance.collection('products').get();
+    QuerySnapshot purchaseSnapshot = await FirebaseFirestore.instance.collection('purchase').get();
     for (var doc in purchaseSnapshot.docs) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       String productCode = data['productCode'] ?? '';

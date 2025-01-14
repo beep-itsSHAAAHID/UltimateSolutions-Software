@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../api/google_sheets_api.dart';
+import 'addcustomer.dart';
 
 class ViewCustomers extends StatefulWidget {
   final String userEmail;
@@ -15,6 +16,7 @@ class ViewCustomers extends StatefulWidget {
 
 class Customers {
   final String customerName;
+  final String arabicName;
   final String customerCode;
   final String address;
   final String customerType;
@@ -24,6 +26,7 @@ class Customers {
   final String vtNumber;
   final Timestamp createdAt;
   final String email;
+  final int invoiceCount; // Add invoiceCount directly to the model
 
   Customers({
     required this.customerName,
@@ -36,6 +39,8 @@ class Customers {
     required this.vtNumber,
     required this.createdAt,
     required this.email,
+    required this.arabicName,
+    required this.invoiceCount,
   });
 }
 
@@ -66,11 +71,18 @@ class _ViewCustomersState extends State<ViewCustomers> {
     }
 
     // Convert the snapshot data to a list of Customer objects
-    customersList = snapshot.docs
-        .map((DocumentSnapshot<Map<String, dynamic>> doc) {
-      Map<String, dynamic> data = doc.data()!;
+    customersList = await Future.wait(snapshot.docs.map((doc) async {
+      Map<String, dynamic> data = doc.data();
+
+      // Fetch the invoice count for the current customer
+      QuerySnapshot<Map<String, dynamic>> invoiceSnapshot = await FirebaseFirestore.instance
+          .collection('invoices')
+          .where('customerCode', isEqualTo: data['customerCode'])
+          .get();
+
       return Customers(
         customerName: data['customerName'] ?? '',
+        arabicName: data['arabicName'] ?? '',
         customerCode: data['customerCode'] ?? '',
         address: data['address'] ?? '',
         customerType: data['customerType'] ?? '',
@@ -80,8 +92,9 @@ class _ViewCustomersState extends State<ViewCustomers> {
         vtNumber: data['vtNumber'] ?? '',
         email: data['email'] ?? '',
         createdAt: data['createdAt'] ?? Timestamp.now(),
+        invoiceCount: invoiceSnapshot.size, // Store the invoice count
       );
-    }).toList();
+    }).toList());
 
     return customersList;
   }
@@ -141,6 +154,56 @@ class _ViewCustomersState extends State<ViewCustomers> {
     }
   }
 
+  Future<void> _deleteCustomer(String customerCode) async {
+    try {
+      // Find the document with the matching customerCode
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('customers')
+          .where('customerCode', isEqualTo: customerCode)
+          .get();
+
+      // Check if the document exists
+      if (querySnapshot.docs.isNotEmpty) {
+        // Get the document ID
+        String documentId = querySnapshot.docs.first.id;
+
+        // Delete the document using the document ID
+        await FirebaseFirestore.instance
+            .collection('customers')
+            .doc(documentId)
+            .delete();
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Customer deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Refresh the customer list after deletion
+        _refresh();
+      } else {
+        // If the customer is not found, show an error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Customer not found'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Show error message if something goes wrong
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete customer'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,125 +254,99 @@ class _ViewCustomersState extends State<ViewCustomers> {
                   } else {
                     List<Customers> displayCustomers =
                     filteredCustomers.isNotEmpty ? filteredCustomers : customersList;
-                    return Column(
-                      children: [
-                        for (int index = 0; index < displayCustomers.length; index++)
-                          Card(
-                            color: Colors.lightBlue,
-                            elevation: 10,
-                            margin: EdgeInsets.all(10),
-                            child: ListTile(
-                              leading: Icon(Icons.apartment, size: 40, color: Colors.white),
-                              title: Text(
-                                displayCustomers[index].customerName,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: displayCustomers.length,
+                      itemBuilder: (context, index) {
+                        final customer = displayCustomers[index];
+                        return Card(
+                          color: Colors.lightBlue,
+                          elevation: 10,
+                          margin: EdgeInsets.all(10),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                // Square Icon Container
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(Icons.account_box, size: 30, color: Colors.blue),
                                 ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 5),
-                                  Row(
+                                SizedBox(width: 10),
+
+                                // Customer Info
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Icon(Icons.numbers, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
                                       Text(
-                                        'Customer Code: ${displayCustomers[index].customerCode}',
-                                        style: TextStyle(fontSize: 16, color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.location_on_outlined, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'Address: ${displayCustomers[index].address}',
+                                        customer.customerName,
                                         style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.credit_card_rounded, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
+                                      SizedBox(height: 5),
                                       Text(
-                                        'Customer Type: ${displayCustomers[index].customerType}',
+                                        'Customer Code: ${customer.customerCode}',
                                         style: TextStyle(fontSize: 16, color: Colors.white),
                                       ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.location_on, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
                                       Text(
-                                        'Delivery Location: ${displayCustomers[index].deliveryLocation}',
+                                        'Arabic Name: ${customer.arabicName}',
                                         style: TextStyle(fontSize: 16, color: Colors.white),
                                       ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.phone_android, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
                                       Text(
-                                        'Mobile Number: ${displayCustomers[index].mobileNumber}',
+                                        'Vat Number: ${customer.vtNumber}',
                                         style: TextStyle(fontSize: 16, color: Colors.white),
                                       ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.phone, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'Telephone Number: ${displayCustomers[index].telephoneNumber}',
-                                        style: TextStyle(fontSize: 16, color: Colors.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Invoices: ${customer.invoiceCount}',
+                                            style: TextStyle(fontSize: 16, color: Colors.black),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.percent, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'Vat Number: ${displayCustomers[index].vtNumber}',
-                                        style: TextStyle(fontSize: 16, color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.access_time, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'Created At: ${displayCustomers[index].createdAt.toDate().toString()}',
-                                        style: TextStyle(fontSize: 14, color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.email, size: 20, color: Colors.white),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'Email: ${displayCustomers[index].email}',
-                                        style: TextStyle(fontSize: 14, color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 5),
-                                ],
-                              ),
+                                ),
+
+                                // Edit and Delete Icons
+                                Column(
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.edit, color: Colors.white),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AddCustomer(
+                                              userEmail: widget.userEmail,
+                                              customer: customer, // Pass the selected customer
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.delete, color: Colors.white),
+                                      onPressed: () {
+                                        _deleteCustomer(customer.customerCode); // Use customerCode as ID
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                      ],
+                        );
+                      },
                     );
                   }
                 },

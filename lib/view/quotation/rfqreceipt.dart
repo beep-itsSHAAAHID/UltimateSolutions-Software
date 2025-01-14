@@ -90,40 +90,6 @@ class _RfqReceiptState extends State<RfqReceipt> {
       );
     }
 
-    // pw.Widget _buildDetailText(String label, dynamic value,
-    //     {bool isBold = false}) {
-    //   return pw.Container(
-    //     margin: pw.EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-    //     child: pw.Row(
-    //       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    //       children: [
-    //         // Label
-    //         pw.Text(
-    //           label,
-    //           style: pw.TextStyle(
-    //             font: ttfFontBold,
-    //             fontWeight: isBold ? pw.FontWeight.bold : null,
-    //           ),
-    //         ),
-    //         // Value
-    //         pw.Container(
-    //           //alignment: pw.Alignment.centerRight,
-    //           child: pw.Text(
-    //             '${value ?? ''}',
-    //             style: pw.TextStyle(
-    //               font: ttfArabicFont, // Use Arabic font for the value
-    //               fontWeight: pw.FontWeight.bold,
-    //               letterSpacing: 0, // No letter spacing
-    //             ),
-    //             textDirection: pw.TextDirection.rtl,
-    //             // Right-to-left text direction for Arabic
-    //             textAlign: pw.TextAlign.left, // Align Arabic text to the right
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   );
-    // }
 
     pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false, bool isCustomerName = false, bool isArabicName = false}) {
       return pw.Table(
@@ -210,9 +176,9 @@ class _RfqReceiptState extends State<RfqReceipt> {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       _buildDetailText('Payment Term:', data['modeOfPayment'], isBold: true),
-                      _buildDetailText('Date:', data['invoiceDate'], isBold: true),
-                      _buildDetailText('Invoice No.:', data['invoiceNo'], isBold: true),
-                      _buildDetailText('Po No.:', data['poNo'], isBold: true),
+                      _buildDetailText('Quotation Date:', data['quotationDate'], isBold: true),
+                      _buildDetailText('Quotation No.:', data['quotationNo'], isBold: true),
+
                     ],
                   ),
                 ),
@@ -222,10 +188,6 @@ class _RfqReceiptState extends State<RfqReceipt> {
         ),
       );
     }
-
-
-
-
 
     // Retrieve the product details from the Firestore data
     List<Map<String, dynamic>> productList =
@@ -279,19 +241,70 @@ class _RfqReceiptState extends State<RfqReceipt> {
     }
 
 // Add a function to get net amount in words
-    String _getNetAmountInWords(Map<String, dynamic> data) {
-      double netAmountDouble =
-          double.parse(data['netAmount']?.toString() ?? '0');
-      int netAmountInt = netAmountDouble.truncate();
-      int halalas =
-          ((netAmountDouble - netAmountInt) * 100).toInt(); // Extract halalas
-      String netAmountInWords =
-          words.NumberToWord().convert('en-in', netAmountInt);
-      String halalasInWords = words.NumberToWord()
-          .convert('en-in', halalas); // Convert halalas to words
-      return capitalizeWords(netAmountInWords) +
-          ' Saudi Riyals and $halalasInWords Halalas';
+    String _convertChunk(int number) {
+      final List<String> units = [
+        '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+        'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
+      ];
+
+      final List<String> tens = [
+        '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
+      ];
+
+      if (number == 0) return '';
+
+      if (number < 20) {
+        return units[number];
+      } else if (number < 100) {
+        return tens[number ~/ 10] + (number % 10 != 0 ? ' ${units[number % 10]}' : '');
+      } else {
+        return units[number ~/ 100] + ' hundred' + (number % 100 != 0 ? ' ' + _convertChunk(number % 100) : '');
+      }
     }
+
+    String _convertNumberToWords(int number) {
+      if (number == 0) return 'zero';
+
+      final List<String> units = [
+        '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+        'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
+      ];
+
+      final List<String> tens = [
+        '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
+      ];
+
+      final List<String> scales = [
+        '', 'thousand', 'million', 'billion', 'trillion'
+      ];
+
+      List<String> words = [];
+      int scaleIndex = 0;
+
+      while (number > 0) {
+        int chunk = number % 1000;
+        if (chunk != 0) {
+          words.insert(0, _convertChunk(chunk) + ' ' + scales[scaleIndex]);
+        }
+        number ~/= 1000;
+        scaleIndex++;
+      }
+
+      return words.join(' ').trim();
+    }
+
+    String _getNetAmountInWords(Map<String, dynamic> data) {
+      double netAmountDouble = double.parse(data['netAmount']?.toString() ?? '0');
+      int netAmountInt = netAmountDouble.truncate();
+      int halalas = ((netAmountDouble - netAmountInt) * 100).toInt(); // Extract halalas
+
+      String netAmountInWords = _convertNumberToWords(netAmountInt);
+      String halalasInWords = _convertNumberToWords(halalas);
+
+      String netAmountText = '${capitalizeWords(netAmountInWords)} Saudi Riyals and ${capitalizeWords(halalasInWords)} Halalas';
+      return netAmountText;
+    }
+
 
     pw.Widget _buildTableCell(String text) {
       return pw.Padding(
@@ -363,17 +376,12 @@ class _RfqReceiptState extends State<RfqReceipt> {
                 ],
               ),
               pw.SizedBox(height: 10),
-              pw.Expanded(
-                flex: 0,
-                child: pw.Container(
-                  margin: pw.EdgeInsets.symmetric(horizontal: 20.0),
-                  height: 200,
-                  child: pw.Table(
-                    border: pw.TableBorder.all(
-                        style: pw.BorderStyle.dashed,
-                        color: pw.PdfColors.blueAccent),
-                    children: tableRows,
-                  ),
+              pw.Container(
+                margin: pw.EdgeInsets.symmetric(horizontal: 20.0),
+                child: pw.Table(
+                  border: pw.TableBorder.all(
+                      style: pw.BorderStyle.dashed, color: pw.PdfColors.blueAccent),
+                  children: tableRows,
                 ),
               ),
               pw.Container(
@@ -449,20 +457,20 @@ class _RfqReceiptState extends State<RfqReceipt> {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   mainAxisAlignment: pw.MainAxisAlignment.start,
                   children: [
+                    // pw.Text(
+                    //   'Note:',
+                    //   style: pw.TextStyle(
+                    //     font: ttfFontBold,
+                    //     fontSize: 16,
+                    //     decoration: pw.TextDecoration.underline,
+                    //   ),
+                    // ),
+                    // pw.SizedBox(width: 200),
                     pw.Text(
-                      'Note:',
-                      style: pw.TextStyle(
-                        font: ttfFontBold,
-                        fontSize: 16,
-                        decoration: pw.TextDecoration.underline,
-                      ),
-                    ),
-                    pw.SizedBox(width: 200),
-                    pw.Text(
-                      '-Materials quoted are subject to the availability at the time of confirmation by Purchase Order. \n -Items that are not specifically mentioned and agreed are excluded from the scope.\n -Prices quoted are based on all items and quantities ordered.\n-Validity of the Quotation is 30 days.',
+                      '-Materials quoted are subject to the availability at the time of confirmation by Purchase Order. \n -Prices quoted are based on all items and quantities ordered.\n-Validity of the Quotation is 30 days.',
                       style: pw.TextStyle(
                         font: ttfFont,
-                        fontSize: 12,
+                        fontSize: 9,
                       ),
                     ),
                   ],

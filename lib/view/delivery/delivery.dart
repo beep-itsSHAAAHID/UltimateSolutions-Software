@@ -19,6 +19,7 @@ class _DeliveryState extends State<Delivery> {
   TextEditingController _customerNameController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
+  TextEditingController _invoiceController = TextEditingController();
   TextEditingController _deliveryNoteNoController = TextEditingController();
   TextEditingController _poNoController = TextEditingController();
   TextEditingController _refNoController = TextEditingController();
@@ -91,6 +92,7 @@ class _DeliveryState extends State<Delivery> {
               buildTextField('Phone No.', _phoneController),
               buildTextField('Vat No.', _vatNoController),
               buildTextField('Delivery Note No.', _deliveryNoteNoController),
+              buildTextField('Invoice No.', _invoiceController),
               buildTextField('PO No.', _poNoController),
               buildTextField('REF No.', _refNoController),
               buildTextField('Date', _dateController),
@@ -283,6 +285,7 @@ class _DeliveryState extends State<Delivery> {
         'deliveryNoteNo': _deliveryNoteNoController.text,
         'poNo': _poNoController.text,
         'vatNo': _vatNoController.text,
+        'invoiceNo': _invoiceController.text,
         'refNo': _refNoController.text,
         'date':_dateController.text,
         'products': products.map((product) {

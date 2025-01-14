@@ -112,6 +112,10 @@ class _ViewPurchaseState extends State<ViewPurchase> {
                         style: TextStyle(fontSize: 16),
                       ),
                       Text(
+                        'Purchase Date: ${purchases[index]['purchaseDate']}',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
                         'Added By: ${purchases[index]['addedBy']}',
                         style: TextStyle(fontSize: 16),
                       ),

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../salesnav.dart';
+import 'customers.dart';
 
 
 class AddCustomer extends StatefulWidget {
   final String userEmail;
+  final Customers? customer;
+  final String? documentId;
 
-  const AddCustomer({Key? key, required this.userEmail}) : super(key: key);
+  const AddCustomer({Key? key, required this.userEmail, this.customer, this.documentId}) : super(key: key);
 
   @override
   State<AddCustomer> createState() => _AddCustomerState();
@@ -38,9 +41,32 @@ class _AddCustomerState extends State<AddCustomer> {
   void initState() {
     super.initState();
     _initializeFirebase();
-    _customerCodeController = TextEditingController();
-    _loadLastCustomerCode();
+
+    if (widget.customer != null) {
+      _customerCodeController = TextEditingController(text: widget.customer!.customerCode);
+      _customerNameController.text = widget.customer!.customerName;
+      _arabicNameController.text = widget.customer!.arabicName;
+      _addressController.text = widget.customer!.address;
+      _mobileNumberController.text = widget.customer!.mobileNumber;
+      _telephoneNumberController.text = widget.customer!.telephoneNumber;
+      _vtNumberController.text = widget.customer!.vtNumber;
+      _deliveryLocationController.text = widget.customer!.deliveryLocation;
+      _emailController.text = widget.customer!.email;
+
+      // Ensure the selected value is in the list
+      _selectedCustomerType = _customerTypeOptions.contains(widget.customer!.customerType)
+          ? widget.customer!.customerType
+          : _customerTypeOptions[0];
+
+      _selectedLocation = _locationOptions.contains(widget.customer!.deliveryLocation)
+          ? widget.customer!.deliveryLocation
+          : _locationOptions[0];
+    } else {
+      _customerCodeController = TextEditingController();
+      _loadLastCustomerCode();
+    }
   }
+
 
   Future<void> _initializeFirebase() async {
     await Firebase.initializeApp();
@@ -67,7 +93,6 @@ class _AddCustomerState extends State<AddCustomer> {
 
   Future<void> _submitCustomerData() async {
     try {
-      // Retrieve values from controllers
       String customerCode = _customerCodeController.text;
       String customerName = _customerNameController.text;
       String arabicName = _arabicNameController.text;
@@ -80,30 +105,61 @@ class _AddCustomerState extends State<AddCustomer> {
       String deliveryLocation = _deliveryLocationController.text;
       String email = _emailController.text;
 
-      // Add customer data to Firestore, including the userEmail of the person who added the customer
-      await FirebaseFirestore.instance.collection('customers').add({
-        'customerCode': customerCode,
-        'arabicName': arabicName,
-        'customerName': customerName,
-        'contactPerson': contactPerson,
-        'address': address,
-        'mobileNumber': mobileNumber,
-        'telephoneNumber': telephoneNumber,
-        'vtNumber': vtNumber,
-        'customerType': customerType,
-        'deliveryLocation': deliveryLocation,
-        'email': email,
-        'createdAt': FieldValue.serverTimestamp(),
-        'addedBy': widget.userEmail,  // Include the user email of the person adding the customer
-      });
+      // Check if customer with the same customerCode exists
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('customers')
+          .where('customerCode', isEqualTo: customerCode)
+          .get();
 
+      if (querySnapshot.docs.isNotEmpty) {
+        // If customer exists, update the document
+        DocumentSnapshot existingCustomer = querySnapshot.docs.first;
+        await FirebaseFirestore.instance
+            .collection('customers')
+            .doc(existingCustomer.id)
+            .update({
+          'customerName': customerName,
+          'arabicName': arabicName,
+          'address': address,
+          'mobileNumber': mobileNumber,
+          'telephoneNumber': telephoneNumber,
+          'vtNumber': vtNumber,
+          'customerType': customerType,
+          'deliveryLocation': deliveryLocation,
+          'email': email,
+          'addedBy': widget.userEmail,
+        });
+      } else {
+        // If customerCode doesn't exist, add a new customer
+        await FirebaseFirestore.instance.collection('customers').add({
+          'customerCode': customerCode,
+          'arabicName': arabicName,
+          'customerName': customerName,
+          'contactPerson': contactPerson,
+          'address': address,
+          'mobileNumber': mobileNumber,
+          'telephoneNumber': telephoneNumber,
+          'vtNumber': vtNumber,
+          'customerType': customerType,
+          'deliveryLocation': deliveryLocation,
+          'email': email,
+          'createdAt': FieldValue.serverTimestamp(),
+          'addedBy': widget.userEmail,
+        });
+      }
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: widget.userEmail)));
-
+      // Navigate to the next page or screen
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => SalesNav(userEmail: widget.userEmail)));
     } catch (e) {
       print('Error submitting customer data: $e');
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {

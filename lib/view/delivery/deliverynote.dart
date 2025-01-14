@@ -192,8 +192,8 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      _buildDetailText('Payment Term:', data['modeOfPayment'], isBold: true),
-                      _buildDetailText('Date:', data['invoiceDate'], isBold: true),
+                      _buildDetailText('Date:', data['date'], isBold: true),
+                      _buildDetailText('Delivery Note No:', data['deliveryNoteNo'], isBold: true),
                       _buildDetailText('Invoice No.:', data['invoiceNo'], isBold: true),
                       _buildDetailText('Po No.:', data['poNo'], isBold: true),
                     ],

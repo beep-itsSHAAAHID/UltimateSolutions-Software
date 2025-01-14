@@ -2,6 +2,9 @@ import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+
+import '../supplier/supplier_selection_page.dart';
 
 class Purchase extends StatefulWidget {
   final String userEmail;
@@ -13,23 +16,47 @@ class Purchase extends StatefulWidget {
 }
 
 class _PurchaseState extends State<Purchase> {
-  List<Map<String, TextEditingController>> products = [
-    {'code': TextEditingController(), 'name': TextEditingController()}
+  List<Map<String, dynamic>> products = [
+    {
+      'code': TextEditingController(),
+      'name': TextEditingController(),
+      'retailPrice': TextEditingController(),
+      'quantity': TextEditingController(),
+      'priceAfterVAT': TextEditingController(),
+    }
   ];
-  TextEditingController _productCodeController = TextEditingController();
-  TextEditingController _productNameController = TextEditingController();
-  TextEditingController _purchaseAmountController = TextEditingController();
-  TextEditingController _amountController = TextEditingController();
-  TextEditingController _currentStockController = TextEditingController();
-  TextEditingController _openingStockController = TextEditingController();
-  TextEditingController _averageCostController = TextEditingController();
-  TextEditingController _retailPriceController = TextEditingController();
-  TextEditingController _wholesaleRateController = TextEditingController();
-  TextEditingController _priceAfterVATController = TextEditingController();
+  TextEditingController _purchaseInvoiceController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  TextEditingController _supplierController = TextEditingController();
+  TextEditingController _supplierVATController = TextEditingController();
+  TextEditingController _totalVATController = TextEditingController();
+  TextEditingController _totalAmountPaidController = TextEditingController();
 
-  String _selectedVATCategory = '5%'; // Default value
+  final String _selectedVATCategory = '15%'; // Default value
 
-  List<String> _vatCategories = ['5%', '10%', '15%'];
+  @override
+  void initState() {
+    super.initState();
+    _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  }
+
+  @override
+  void dispose() {
+    _purchaseInvoiceController.dispose();
+    for (var product in products) {
+      product['code']?.dispose();
+      product['name']?.dispose();
+      product['retailPrice']?.dispose();
+      product['quantity']?.dispose();
+      product['priceAfterVAT']?.dispose();
+    }
+    _dateController.dispose();
+    _supplierController.dispose();
+    _supplierVATController.dispose();
+    _totalVATController.dispose();
+    _totalAmountPaidController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,24 +79,49 @@ class _PurchaseState extends State<Purchase> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            buildProductRow(),
+            buildTextField('Purchase Invoice Code', _purchaseInvoiceController),
+            buildProductList(),
             SizedBox(height: 16),
-            buildTextField('Enter Purchase Amount', _purchaseAmountController),
-            buildTextField('Enter Quantity', _amountController),
-            buildTextField('Current Stock', _currentStockController),
-            buildTextField('Opening Stock', _openingStockController),
-            buildTextField('Average Cost', _averageCostController),
-            buildTextField('Retail Price', _retailPriceController),
-            buildTextField('Wholesale Rate', _wholesaleRateController),
+            ElevatedButton(
+              onPressed: () {
+                addProductField();
+              },
+              child: Text('Add Another Product'),
+            ),
             SizedBox(height: 16),
-            buildVATCategoryDropdown(),
-            SizedBox(height: 16),
-            buildTextField('Price after VAT', _priceAfterVATController, editable: false),
+            buildTextFieldWithSearchIcon(
+              'Supplier Name',
+              _supplierController,
+              onTap: () async {
+                final selectedSupplier = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SupplierSelectionPage(),
+                  ),
+                );
+                // Update state with selected supplier data
+                if (selectedSupplier != null && selectedSupplier is Map<String, dynamic>) {
+                  setState(() {
+                    _supplierController.text = selectedSupplier['supplierName'];
+                    _supplierVATController.text = selectedSupplier['vatNumber'];
+                  });
+                }
+              },
+            ),
+            buildTextField('Supplier VAT', _supplierVATController, editable: true),
+            buildTextField('Purchase Date', _dateController),
+            buildTextField('Total VAT', _totalVATController, editable: false),
+            buildTextField('Total Amount Paid', _totalAmountPaidController, editable: false),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 addDataToFirestore();
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: widget.userEmail)));
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SalesNav(
+                          userEmail: widget.userEmail,
+                        )));
               },
               child: Text('Submit'),
             ),
@@ -79,30 +131,38 @@ class _PurchaseState extends State<Purchase> {
     );
   }
 
-  Widget buildProductRow() {
+  Widget buildProductList() {
     return Column(
-      children: [
-        buildTextField('Product Code', _productCodeController),
-        buildTextFieldWithSearchIcon(
-          'Product Name',
-          _productNameController,
-          onTap: () async {
-            final selectedProduct = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProductSelectionPage(),
-              ),
-            );
-            // Update state with selected product data
-            if (selectedProduct != null && selectedProduct is Map<String, dynamic>) {
-              setState(() {
-                _productCodeController.text = selectedProduct['itemCode'] ?? '';
-                _productNameController.text = selectedProduct['itemName'] ?? '';
-              });
-            }
-          },
-        ),
-      ],
+      children: products
+          .map((product) => Column(
+        children: [
+          buildTextField('Product Code', product['code']!, editable: true),
+          buildTextFieldWithSearchIcon(
+            'Product Name',
+            product['name']!,
+            onTap: () async {
+              final selectedProduct = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductSelectionPage(),
+                ),
+              );
+              // Update state with selected product data
+              if (selectedProduct != null && selectedProduct is Map<String, dynamic>) {
+                setState(() {
+                  product['code']?.text = selectedProduct['itemCode'] ?? '';
+                  product['name']?.text = selectedProduct['itemName'] ?? '';
+                });
+              }
+            },
+          ),
+          buildTextField('Retail Price', product['retailPrice']!),
+          buildTextField('Quantity', product['quantity']!),
+          buildTextField('Price After VAT', product['priceAfterVAT']!, editable: false),
+          SizedBox(height: 16),
+        ],
+      ))
+          .toList(),
     );
   }
 
@@ -118,6 +178,10 @@ class _PurchaseState extends State<Purchase> {
             borderRadius: BorderRadius.circular(20.0),
           ),
         ),
+        onChanged: (value) {
+          if (!editable && labelText == 'Price After VAT') return;
+          calculatePriceAfterVAT();
+        },
       ),
     );
   }
@@ -144,65 +208,70 @@ class _PurchaseState extends State<Purchase> {
     );
   }
 
-  Widget buildVATCategoryDropdown() {
-    return Row(
-      children: [
-        Text('VAT Category:'),
-        SizedBox(width: 10),
-        DropdownButton<String>(
-          value: _selectedVATCategory,
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() {
-                _selectedVATCategory = newValue;
-                calculatePriceAfterVAT();
-              });
-            }
-          },
-          items: _vatCategories.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
   void calculatePriceAfterVAT() {
-    try {
-      double retailPrice = double.parse(_retailPriceController.text);
-      double vatPercentage = double.parse(_selectedVATCategory.replaceAll('%', ''));
-      double priceAfterVAT = retailPrice + (retailPrice * vatPercentage / 100);
-      _priceAfterVATController.text = priceAfterVAT.toString();
-    } catch (error) {
-      print('Error calculating price after VAT: $error');
-    }
+    double totalVAT = 0.0;
+    double totalAmountPaid = 0.0;
+
+    setState(() {
+      for (var product in products) {
+        try {
+          double retailPrice = double.parse(product['retailPrice']?.text ?? '0');
+          int quantity = int.parse(product['quantity']?.text ?? '0');
+          double vatPercentage = 15.0; // Set to 15% by default
+          double totalPrice = retailPrice * quantity;
+          double vatAmount = totalPrice * vatPercentage / 100;
+          double priceAfterVAT = totalPrice + vatAmount;
+
+          product['priceAfterVAT']?.text = priceAfterVAT.toStringAsFixed(2);
+
+          totalVAT += vatAmount;
+          totalAmountPaid += priceAfterVAT;
+        } catch (error) {
+          print('Error calculating price after VAT: $error');
+        }
+      }
+
+      _totalVATController.text = totalVAT.toStringAsFixed(2);
+      _totalAmountPaidController.text = totalAmountPaid.toStringAsFixed(2);
+    });
   }
 
   void addDataToFirestore() async {
     try {
       FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      await firestore.collection('products').add({
-        'productName': _productNameController.text,
-        'productCode': _productCodeController.text,
-        'purchaseAmount': _purchaseAmountController.text,
-        'quantity': _amountController.text,
-        'currentStock': _currentStockController.text,
-        'openingStock': _openingStockController.text,
-        'averageCost': _averageCostController.text,
-        'retailPrice': _retailPriceController.text,
-        'wholesaleRate': _wholesaleRateController.text,
-        'vatCategory': _selectedVATCategory,
-        'priceAfterVAT': _priceAfterVATController.text,
-        'addedBy': widget.userEmail, // Include the user email of the person adding the purchase
-      });
+      for (var product in products) {
+        await firestore.collection('purchase').add({
+          'purchaseInvoiceCode': _purchaseInvoiceController.text,
+          'productName': product['name']?.text ?? '',
+          'productCode': product['code']?.text ?? '',
+          'retailPrice': product['retailPrice']?.text ?? '',
+          'quantity': product['quantity']?.text ?? '',
+          'priceAfterVAT': product['priceAfterVAT']?.text ?? '',
+          'vatCategory': _selectedVATCategory,
+          'purchaseDate': _dateController.text,
+          'addedBy': widget.userEmail,
+          'supplierName': _supplierController.text,
+          'supplierVAT': _supplierVATController.text,
+          'createdDate': FieldValue.serverTimestamp(),
+        });
+      }
 
       print('Data added to Firestore successfully!');
     } catch (error) {
       print('Error adding data to Firestore: $error');
     }
+  }
+
+  void addProductField() {
+    setState(() {
+      products.add({
+        'code': TextEditingController(),
+        'name': TextEditingController(),
+        'retailPrice': TextEditingController(),
+        'quantity': TextEditingController(),
+        'priceAfterVAT': TextEditingController(),
+      });
+    });
   }
 }

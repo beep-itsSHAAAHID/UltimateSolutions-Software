@@ -665,42 +665,42 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
 
                     // Center - Logo
                     pw.Container(
-                      width: 80, // Adjust size as needed
-                      height: 80,
+                      width: 100, // Adjust size as needed
+                      height: 100,
                       child: pw.Column(
-                          mainAxisAlignment: pw.MainAxisAlignment.center,
-                          crossAxisAlignment: pw.CrossAxisAlignment.center,
-                          children: [
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        crossAxisAlignment: pw.CrossAxisAlignment.center,
+                        children: [
 
-                            pw.Container(
-                              width: 60,
-                              height: 60,
-                              child: logoImage,
+                          pw.Container(
+                            width: 60,
+                            height: 60,
+                            child: logoImage,
+                          ),
+                          pw.SizedBox(height: 10), // Space between the image and the text
+                          // pw.Text(
+                          //   'TAX INVOICE',
+                          //   style: pw.TextStyle(
+                          //     font: ttfFontBold, // Use your desired font
+                          //     fontSize: 15, // Adjust the font size
+                          //     fontWeight: pw.FontWeight.bold,
+                          //   ),
+                          // ),
+                          pw.Text(
+                            'فاتورة ضريبية', // Arabic translation of "TAX INVOICE"
+                            style: pw.TextStyle(
+                              font: ttfArabicFont, // Use Arabic font
+                              fontSize: 15, // Adjust the font size
+                              fontWeight: pw.FontWeight.bold,
                             ),
-                    pw.SizedBox(height: 5), // Space between the image and the text
-                    pw.Text(
-                      'TAX INVOICE',
-                      style: pw.TextStyle(
-                        font: ttfFontBold, // Use your desired font
-                        fontSize: 10, // Adjust the font size
-                        fontWeight: pw.FontWeight.bold,
+                            textDirection: pw.TextDirection.rtl, // Set the text direction for Arabic
+                          ),
+                        ],
                       ),
                     ),
-                    pw.Text(
-                      'فاتورة ضريبية', // Arabic translation of "TAX INVOICE"
-                      style: pw.TextStyle(
-                        font: ttfArabicFont, // Use Arabic font
-                        fontSize: 10, // Adjust the font size
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                      textDirection: pw.TextDirection.rtl, // Set the text direction for Arabic
-                    ),
-                  ],
-                ),
-              ),
 
 
-              // Right side - Arabic text (Fully Arabic, including values)
+                    // Right side - Arabic text (Fully Arabic, including values)
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.end,
                       children: [

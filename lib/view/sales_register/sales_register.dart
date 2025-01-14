@@ -1,19 +1,20 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:intl/intl.dart';
 
-class VatReportPage extends StatefulWidget {
+class SalesRegisterPage extends StatefulWidget {
   @override
-  _VatReportPageState createState() => _VatReportPageState();
+  _SalesRegisterPageState createState() => _SalesRegisterPageState();
 }
 
-class _VatReportPageState extends State<VatReportPage> {
+class _SalesRegisterPageState extends State<SalesRegisterPage> {
   DateTime? _startDate;
   DateTime? _endDate;
   GSheets? gsheets;
   Spreadsheet? _spreadsheet;
-
 
   final _credentials = {
     "type": "service_account",
@@ -28,8 +29,6 @@ class _VatReportPageState extends State<VatReportPage> {
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/shahidsservices-913%40ultimate-ba724.iam.gserviceaccount.com",
     "universe_domain": "googleapis.com"
   };
-
-
 
   @override
   void initState() {
@@ -49,15 +48,19 @@ class _VatReportPageState extends State<VatReportPage> {
       await init();
     }
 
-    var worksheet = _spreadsheet!.worksheetByTitle('VATReport');
+    var worksheet = _spreadsheet!.worksheetByTitle('SalesRegister');
     if (worksheet == null) {
-      worksheet = await _spreadsheet!.addWorksheet('VATReport');
-      await worksheet.values.insertRow(1, ['VAT Report']);
-      await worksheet.values.insertRow(2, ['Date Range', 'Total VAT Paid', 'Total VAT Received', 'Net VAT']);
-      await worksheet.values.insertRow(4, ['Sales Register']);
-      await worksheet.values.insertRow(5, ['Date', 'Invoice No', 'Payment Type', 'VAT No', 'Customer Name', 'Total Without VAT', 'Total With VAT']);
-      await worksheet.values.insertRow(7, ['Purchase Register']);
-      await worksheet.values.insertRow(8, ['Date', 'Bill Type', 'Supplier Name', 'Retail Price', 'Price After VAT', 'VAT']);
+      worksheet = await _spreadsheet!.addWorksheet('SalesRegister');
+      await worksheet.values.insertRow(1, [
+        'Date',
+        'Invoice No',
+        'Payment Type',
+        'VAT No',
+        'Customer Name',
+        'Gross Amount'
+        'VAT Total',
+        'Net Amount'
+      ]);
     }
     return worksheet;
   }
@@ -66,7 +69,7 @@ class _VatReportPageState extends State<VatReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('VAT Report'),
+        title: Text('Sales Register'),
         backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
@@ -109,14 +112,14 @@ class _VatReportPageState extends State<VatReportPage> {
               ),
               onPressed: () {
                 if (_startDate != null && _endDate != null) {
-                  _generateVatReport(_startDate!, _endDate!);
+                  _generateSalesReport(_startDate!, _endDate!);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Please select both start and end dates')),
                   );
                 }
               },
-              child: Text('Generate VAT Report', style: TextStyle(color: Colors.white)),
+              child: Text('Generate Report'),
             ),
           ],
         ),
@@ -150,105 +153,40 @@ class _VatReportPageState extends State<VatReportPage> {
     );
   }
 
-  Future<void> _generateVatReport(DateTime startDate, DateTime endDate) async {
-    // Fetch purchase and sales data based on date range
-    QuerySnapshot purchaseSnapshot = await FirebaseFirestore.instance
-        .collection('purchase')
-        .where('purchaseDate', isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd').format(startDate))
-        .where('purchaseDate', isLessThanOrEqualTo: DateFormat('yyyy-MM-dd').format(endDate))
-        .get();
-
+  Future<void> _generateSalesReport(DateTime startDate, DateTime endDate) async {
     QuerySnapshot salesSnapshot = await FirebaseFirestore.instance
         .collection('invoices')
         .where('invoiceDate', isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd').format(startDate))
         .where('invoiceDate', isLessThanOrEqualTo: DateFormat('yyyy-MM-dd').format(endDate))
         .get();
 
-    double totalInputVat = 0.0;
-    double totalOutputVat = 0.0;
+    List<List<dynamic>> salesData = [];
 
-    // Calculate Output VAT (paid to manufacturers)
-    for (var doc in purchaseSnapshot.docs) {
-      double retailPrice = double.tryParse(doc['retailPrice'].toString()) ?? 0.0;
-      double outputVat = retailPrice * 0.15;
-      totalOutputVat += outputVat;
-      print('Purchase Document ID: ${doc.id}, Retail Price: $retailPrice, Output VAT: $outputVat');
-    }
-
-    // Calculate Input VAT (collected from invoices)
     for (var doc in salesSnapshot.docs) {
-      double totalWithoutVat = double.tryParse(doc['totalWithoutVat'].toString()) ?? 0.0;
-      double inputVat = totalWithoutVat * 0.15;
-      totalInputVat += inputVat;
-      print('Sales Document ID: ${doc.id}, Total Without VAT: $totalWithoutVat, Input VAT: $inputVat');
-    }
-
-    double netVat = totalInputVat - totalOutputVat;
-
-    print('Total Input VAT: $totalInputVat, Total Output VAT: $totalOutputVat, Net VAT: $netVat');
-
-    await _appendVatDataToSheet(startDate, endDate, totalInputVat, totalOutputVat, netVat, purchaseSnapshot, salesSnapshot);
-  }
-
-  Future<void> _appendVatDataToSheet(DateTime startDate, DateTime endDate, double totalInputVat, double totalOutputVat, double netVat, QuerySnapshot purchaseSnapshot, QuerySnapshot salesSnapshot) async {
-    final worksheet = await getOrCreateWorksheet();
-
-    // Append VAT Report
-    await worksheet.values.insertRow(3, [
-      '${DateFormat('yyyy-MM-dd').format(startDate)} - ${DateFormat('yyyy-MM-dd').format(endDate)}',
-      totalOutputVat.toStringAsFixed(2),
-      totalInputVat.toStringAsFixed(2),
-      netVat.toStringAsFixed(2)
-    ]);
-
-    // Append Sales Register
-    int salesStartRow = 6;
-    for (var doc in salesSnapshot.docs) {
-      await worksheet.values.insertRow(salesStartRow++, [
-        doc['invoiceDate'] ?? '',
-        doc['invoiceNo'] ?? '',
-        doc['modeOfPayment'] ?? '',
-        doc['vatNo'] ?? '',
-        doc['customerName'] ?? '',
-        doc['totalWithoutVat']?.toString() ?? '',
-        doc['netAmount']?.toString() ?? ''
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      salesData.add([
+        data['invoiceDate'] ?? '',
+        data['invoiceNo'] ?? '',
+        data['modeOfPayment'] ?? '',
+        data['vatNo'] ?? '',
+        data['customerName'] ?? '',
+        data['totalWithoutVat'] ?? '',
+        (double.tryParse(data['totalWithoutVat']?.toString() ?? '0')! * 0.15).toStringAsFixed(2),
+        data['netAmount']?.toString() ?? ''
       ]);
     }
 
-    // Append Purchase Register
-    int purchaseStartRow = salesStartRow + 2;
-    for (var doc in purchaseSnapshot.docs) {
-      try {
-        var data = doc.data() as Map<String, dynamic>;
+    await _appendSalesDataToSheet(salesData);
+  }
 
-        String purchaseDate = data.containsKey('purchaseDate') ? data['purchaseDate'] : '';
-        String supplierName = data.containsKey('supplierName') ? data['supplierName'] : '';
-        String supplierVAt = data.containsKey('vatNumber') ? data['vatNumber'] : '';
-        double retailPrice = double.tryParse(data.containsKey('retailPrice') ? data['retailPrice'] : '0') ?? 0.0;
-        double vatAmount = retailPrice * 0.15;
-
-        print('Appending Purchase Register Row: $purchaseDate, Cash, $supplierName, $retailPrice, ${(retailPrice + vatAmount).toStringAsFixed(2)}, ${vatAmount.toStringAsFixed(2)}');
-
-        await worksheet.values.insertRow(purchaseStartRow++, [
-          purchaseDate,
-          'Cash',
-          supplierVAt,
-          supplierName,
-          retailPrice.toStringAsFixed(2),
-          (retailPrice + vatAmount).toStringAsFixed(2),
-          vatAmount.toStringAsFixed(2)
-        ]);
-      } catch (e) {
-        print('Error processing purchase document ID: ${doc.id}, Error: $e');
-      }
+  Future<void> _appendSalesDataToSheet(List<List<dynamic>> salesData) async {
+    final worksheet = await getOrCreateWorksheet();
+    for (var row in salesData) {
+      await worksheet.values.appendRow(row);
     }
 
-    print('Purchase Register appending completed');
-
-
-
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('VAT Report and Registers added to Google Sheet successfully')),
+      SnackBar(content: Text('Sales data added to Google Sheet successfully')),
     );
   }
 }

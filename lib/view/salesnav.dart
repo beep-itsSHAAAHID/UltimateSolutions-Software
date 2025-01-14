@@ -1,14 +1,20 @@
 import 'package:UltimateSolutions/view/activity/activitiy.dart';
 import 'package:UltimateSolutions/view/activity/addactivity.dart';
 import 'package:UltimateSolutions/view/delivery/deliverynote.dart';
+import 'package:UltimateSolutions/view/expenses/add_expenses.dart';
+import 'package:UltimateSolutions/view/expenses/view_expenses.dart';
 import 'package:UltimateSolutions/view/inventory.dart';
 import 'package:UltimateSolutions/view/invoice/invoicereceipt.dart';
 import 'package:UltimateSolutions/view/print.dart';
+import 'package:UltimateSolutions/view/products/add_products.dart';
+import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/purchase/add_purchase.dart';
 import 'package:UltimateSolutions/view/purchase/view_purchase.dart';
 import 'package:UltimateSolutions/view/quotation/rfq.dart';
 import 'package:UltimateSolutions/view/activity/viewallactivities.dart';
 import 'package:UltimateSolutions/view/quotation/rfqreceipt.dart';
+import 'package:UltimateSolutions/view/sales_register/sales_register.dart';
+import 'package:UltimateSolutions/view/supplier/add_supplier.dart';
 import 'package:UltimateSolutions/view/vat_report/vat_report.dart';
 import 'package:flutter/material.dart';
 import 'checkout.dart';
@@ -68,6 +74,16 @@ class _SalesNavState extends State<SalesNav> {
                 childAspectRatio: 0.8,
                 children: [
                   buildMenuItem(
+                    'Products',
+                    Icons.shopping_cart,
+                    Colors.blue,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Add Products', 'page': AddProductPage()},
+                      {'title': 'View Products', 'page': ProductSelectionPage()}, // Replace with your view purchase page
+                    ],
+                  ),
+                  buildMenuItem(
                     'Purchase',
                     Icons.shopping_cart,
                     Colors.blue,
@@ -75,6 +91,15 @@ class _SalesNavState extends State<SalesNav> {
                     options: [
                       {'title': 'Add Purchase', 'page': Purchase(userEmail: widget.userEmail)},
                       {'title': 'View Purchase', 'page': ViewPurchase()}, // Replace with your view purchase page
+                    ],
+                  ),
+                  buildMenuItem(
+                    'Suppliers',
+                    Icons.shopping_cart,
+                    Colors.red,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Add Supplier', 'page': AddSupplier(userEmail: widget.userEmail)},
                     ],
                   ),
                   buildMenuItem(
@@ -161,7 +186,26 @@ class _SalesNavState extends State<SalesNav> {
                     Colors.blue,
                     isVisible: isAdmin,
                     options: [
-                      {'title': 'Cming Soon', 'page': VatReport()},
+                      {'title': 'Vat Report', 'page': VatReportPage()},
+                    ],
+                  ),
+                  buildMenuItem(
+                    'Sales Register',
+                    Icons.print,
+                    Colors.blueAccent,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Sales Register', 'page': SalesRegisterPage()},
+                    ],
+                  ),
+                  buildMenuItem(
+                    'Expenses',
+                    Icons.print,
+                    Colors.red,
+                    isVisible: isAdmin,
+                    options: [
+                      {'title': 'Enter Expenses', 'page': AddExpensePage()},
+                      {'title': 'View Expenses', 'page': ViewExpensesPage()},
                     ],
                   ),
                 ],
