@@ -112,6 +112,8 @@ class _CheckInViewerState extends State<CheckInViewer> {
                         Text("Time: ${entry['time'] ?? 'N/A'}"),
                         Text("Remarks: ${entry['remarks'] ?? 'N/A'}"),
                         Text("Logged At: $formattedTime"),
+                        Text("Check in Location: ${entry['location'] ?? 'N/A'}"),
+
                         const SizedBox(height: 6),
                         if (entry['checks'] != null)
                           Column(

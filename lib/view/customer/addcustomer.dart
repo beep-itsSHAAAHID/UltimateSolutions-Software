@@ -2,6 +2,7 @@ import 'package:UltimateSolutions/home_v2/homepagev2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:translator/translator.dart';
 import '../salesnav.dart';
 import 'customers.dart';
 
@@ -31,6 +32,9 @@ class _AddCustomerState extends State<AddCustomer> {
 
   List<String> _customerTypeOptions = ['Cash', 'Credit', 'Bank Transfer', 'Performa Invoice'];
   String _selectedCustomerType = 'Cash';
+
+  final translator = GoogleTranslator();
+
 
   // Define location options
   List<String> _locationOptions = ['Riyadh', 'Jeddah', 'Dammam'];
@@ -159,6 +163,23 @@ class _AddCustomerState extends State<AddCustomer> {
     }
   }
 
+  void _translateToArabic() async {
+    // Translate the customerName to Arabic
+    Translation translation = await translator.translate(_customerNameController.text,  to: 'ar');
+
+    // Access the translated text from the Translation object
+    String translatedText = translation.text;
+    print(_customerNameController.text);
+    print("Translated Text: ${translatedText}");
+
+
+    // Set the translated Arabic name in the arabicNameController
+    setState(() {
+      _arabicNameController.text = translatedText;
+    });
+  }
+
+
 
 
 
@@ -203,7 +224,18 @@ class _AddCustomerState extends State<AddCustomer> {
               SizedBox(height: 10),
               buildTextField('Customer Code', _customerCodeController),
               buildTextField('Enter Customer Name', _customerNameController),
-              buildTextField('Enter Arabic Name', _arabicNameController),
+
+              buildTextFormField(
+                controller: _arabicNameController,
+                label: 'Arabic Name',
+                suffixIcon: _arabicNameController.text.isEmpty
+                    ? IconButton(
+                  icon: Icon(Icons.translate),
+                  onPressed: _translateToArabic,
+                )
+                    : null,
+              ),
+
               buildTextField('Enter Contact Person', _contactPersonController),
               buildTextField('Enter Address', _addressController),
               buildTextField('Enter Email', _emailController),
@@ -239,6 +271,31 @@ class _AddCustomerState extends State<AddCustomer> {
           ),
         ),
       ),
+    );
+  }
+
+
+  Widget buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    void Function()? onTap,
+    Widget? suffixIcon,
+
+  }) {
+    return TextFormField(
+
+      controller: controller,
+      style: TextStyle(fontSize: 16),
+      decoration: InputDecoration(
+        suffixIcon: suffixIcon,
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: Colors.blue),
+        ),
+        labelText: label,
+      ),
+      onTap: onTap,
     );
   }
 

@@ -33,13 +33,21 @@ class AdminDetailScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.white),
             onPressed: () {
+
+              print('--------');
+              print(data['invoiceNo']);
+              print(data);
+
+
+              print('--------');
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => Invoice(
+
                     userEmail: 'admin@zappq.com', // Use a valid email if needed
-                    documentId: data['invoiceNo'], // if your doc ID is invoiceNo
-                    invoiceData: data,
+                    documentId: data['invoiceNo'] ?? 0, // if your doc ID is invoiceNo
+                    invoiceData: data ?? {},
                   ),
                 ),
               );

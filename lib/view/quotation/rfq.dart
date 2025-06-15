@@ -41,7 +41,7 @@ class _RfqState extends State<Rfq> {
   List<ProductControllerGroup> products = [ProductControllerGroup()];
   String? selectedModeOfPayment;
   List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece','Each','Box'];
-  List<String> modeOfPaymentValues = ['Cash', 'Credit', 'Bank Transfer', 'Proforma Invoice'];
+  List<String> modeOfPaymentValues = ['Cash', 'Cash / Bank Transfer', 'Credit', 'Bank Transfer', 'Proforma Invoice'];
 
   double totalLineTotal = 0.0;
 

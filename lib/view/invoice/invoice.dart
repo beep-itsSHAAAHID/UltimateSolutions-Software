@@ -404,14 +404,14 @@ class _InvoiceState extends State<Invoice> {
     });
   }
 
+
+
   Future<void> submitData() async {
     try {
       print('Submitting data...');
 
-      // Create a list to store the product data
       List<Map<String, dynamic>> productsData = [];
 
-      // Iterate through the products and add data to the list
       for (int i = 0; i < products.length; i++) {
         productsData.add({
           'code': products[i].codeController.text,
@@ -464,6 +464,67 @@ class _InvoiceState extends State<Invoice> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
+
+
+  Future<void> submitNewData() async {
+    try {
+      print('Submitting data...');
+
+      List<Map<String, dynamic>> productsData = [];
+
+      for (int i = 0; i < products.length; i++) {
+        productsData.add({
+          'code': products[i].codeController.text,
+          'name': products[i].nameController.text,
+          'unit': products[i].unitController.text,
+          'quantity': double.tryParse(products[i].qtyController.text) ?? 0.0,
+          'price': double.tryParse(products[i].priceController.text) ?? 0.0,
+          'vat': products[i].selectedVAT,
+          'taxAmount': double.tryParse(products[i].taxAmountController.text) ?? 0.0,
+          'lineTotal': double.tryParse(products[i].lineTotalController.text) ?? 0.0,
+        });
+      }
+
+      // Capture and save the QR code image, and get the image URL
+      String? qrCodeImageUrl = await captureAndSaveImage();
+
+      // Add the main invoice data to Firestore
+      await FirebaseFirestore.instance.collection('invoices').add({
+        'timestamp': FieldValue.serverTimestamp(),
+        'invoiceDate': invoiceDateController.text,
+        'entryDate': entryDateController.text,
+        'invoiceNo': invoiceNoController.text,
+        'arabicName': arabicNameController.text,
+        'deliveryNoteNo': deliveryNoteNoController.text,
+        'poNo': poNoController.text,
+        'vatNo': vatNoController.text,
+        'totalWithoutVat': vatExclusiveController.text,
+        'customerCode': customerCodeController.text,
+        'customerName': customerNameController.text,
+        'address': addressController.text,
+        'deliveryPlace': deliveryPlaceController.text,
+        'modeOfPayment': selectedModeOfPayment,
+        'netAmount': netAmountController.text,
+        'qrCodeImageUrl': qrCodeImageUrl, // Add the QR code image URL
+        'products': productsData, // Add the list of products
+        'status': 'approved',
+      });
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+      print('Data submitted successfully!');
+      final snackBar = SnackBar(content: const Text('Invoice Created Successfully!'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      print('Net Amount: ${netAmountController.text}');
+    } catch (error) {
+      print('Error submitting data: $error');
+
+      // Display an error snackbar
+      final snackBar = SnackBar(content: Text('Error submitting data: $error'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
 
   Widget buildTextFormField({
     required TextEditingController controller,

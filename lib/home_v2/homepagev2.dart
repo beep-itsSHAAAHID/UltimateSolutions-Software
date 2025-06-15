@@ -25,120 +25,156 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Define the current page (the content displayed on the right side)
-  Widget _currentPage = DashboardPage(); // Default to Dashboard
-
+  Widget _currentPage = DashboardPage();
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = MediaQuery.of(context).size.width >= 900;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Row(
+      appBar: isDesktop
+          ? null
+          : AppBar(
+        backgroundColor: Color(0xff172028),
+        iconTheme: IconThemeData(color: Colors.white), // Force white menu icon
+
+        title: Text(
+          'Aman And Judeh Foundation',
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
+      ),
+      drawer: isDesktop
+          ? null
+          : Drawer(
+        child: Container(
+          color: Color(0xff172028), // Match sidebar color
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: _buildMenuOptions(),
+          ),
+        ),
+      ),
+
+      body: isDesktop
+          ? Row(
         children: [
-          // Sidebar Menu
+          // Sidebar for Desktop
           Container(
             width: 250,
             color: Color(0xff172028),
             child: ListView(
               padding: EdgeInsets.zero,
-              children: [
-                // Welcome Section
-                Container(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 10),
-                      Center(child: Text('Aman And Judeh Foundation', style: GoogleFonts.poppins(color: Colors.white, fontSize: 24), textAlign: TextAlign.center)),
-                      Divider(color: Colors.white),
-                      SizedBox(height: 15),
-                      Text('Welcome Admin!', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14)),
-                      Text('Date : ${DateTime.now()}', style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
-                    ],
-                  ),
-                ),
-
-
-
-                MenuOption('Dashboard', [
-                  'View Dashboard'
-
-                ], Iconsax.setting, Color(0xff172028), context, _updatePage),
-
-
-                // Menu Section
-                MenuOption('Invoice', [
-                  'Add Invoice',
-                  'View Invoices',
-                ], Iconsax.receipt, Colors.red, context, _updatePage),
-
-                MenuOption('RFQ', [
-                  'Add RFQ',
-                  'View RFQs',
-                ], Iconsax.task, Colors.orange, context, _updatePage),
-
-                MenuOption('Delivery', [
-                  'Add Delivery',
-                  'View Delivery Notes',
-                ], Iconsax.truck, Colors.purple, context, _updatePage),
-
-                MenuOption('Products', [
-                  'Add Products',
-                  'View Products',
-                ], Iconsax.shopping_cart, Colors.blue, context, _updatePage),
-
-                MenuOption('Purchase', [
-                  'Add Purchase',
-                  'View Purchase',
-                ], Iconsax.shopping_cart, Colors.blue, context, _updatePage),
-
-                MenuOption('Suppliers', [
-                  'Add Supplier',
-                ], Iconsax.shopping_cart, Colors.red, context, _updatePage),
-
-                MenuOption('View Activity', [
-                  'View Activity',
-                  'View Check-ins',
-                ], Iconsax.activity, Colors.amber, context, _updatePage),
-
-                MenuOption('Add Customer', [
-                  'Add Customer',
-                  'View Customers',
-                ], Iconsax.profile, Colors.green, context, _updatePage),
-
-                MenuOption('Approvals', [
-                  'Approval Pending',
-                ], Iconsax.shopping_cart, Colors.red, context, _updatePage),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Text(
-                      'v1.0.1',
-                      style: GoogleFonts.poppins(color: Colors.white54, fontSize: 12),
-                    ),
-                  ),
-                ),
-              ],
+              children: _buildMenuOptions(),
             ),
           ),
-
-          // Main Content Area (Body)
+          // Main Content
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: _currentPage, // Display the updated content
+              child: _currentPage,
             ),
           ),
         ],
+      )
+          : Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: _currentPage,
       ),
     );
   }
 
-  // This method will update the content displayed on the right side based on the menu item clicked
+  List<Widget> _buildMenuOptions() {
+    return [
+      Container(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            Center(
+              child: Text(
+                'Aman And Judeh Foundation',
+                style: GoogleFonts.poppins(color: Colors.white, fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Divider(color: Colors.white),
+            SizedBox(height: 15),
+            Text('Welcome Admin!',
+                style: GoogleFonts.poppins(color: Colors.white, fontSize: 14)),
+            Text('Date : ${DateTime.now().toLocal()}',
+                style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
+          ],
+        ),
+      ),
+      _menuTile('Dashboard', ['View Dashboard'], Iconsax.setting, Colors.grey),
+      _menuTile('Invoice', ['Add Invoice', 'View Invoices'], Iconsax.receipt, Colors.red),
+      _menuTile('RFQ', ['Add RFQ', 'View RFQs'], Iconsax.task, Colors.orange),
+      _menuTile('Delivery', ['Add Delivery', 'View Delivery Notes'], Iconsax.truck, Colors.purple),
+      _menuTile('Products', ['Add Products', 'View Products'], Iconsax.shopping_cart, Colors.blue),
+      _menuTile('Purchase', ['Add Purchase', 'View Purchase'], Iconsax.shopping_cart, Colors.teal),
+      _menuTile('Suppliers', ['Add Supplier'], Iconsax.people, Colors.red),
+      _menuTile('View Activity', ['View Activity', 'View Check-ins'], Iconsax.activity, Colors.amber),
+      _menuTile('Add Customer', ['Add Customer', 'View Customers'], Iconsax.profile, Colors.green),
+      _menuTile('Approvals', ['Approval Pending'], Iconsax.verify, Colors.deepOrange),
+      Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Text(
+            'v1.1.1',
+            style: GoogleFonts.poppins(color: Colors.white54, fontSize: 12),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  Widget _menuTile(String menuName, List<String> subOptions, IconData icon, Color color) {
+    return ExpansionTile(
+      iconColor: Colors.white,
+      collapsedIconColor: color,
+      title: Row(
+        children: [
+          Icon(icon, color: Colors.white),
+          SizedBox(width: 10),
+          Text(menuName, style: GoogleFonts.poppins(color: Colors.white)),
+        ],
+      ),
+      children: subOptions.map((subOption) {
+        return ListTile(
+          title: Text(subOption, style: GoogleFonts.poppins(color: Colors.white70)),
+          onTap: () {
+            Navigator.of(context).maybePop(); // Close drawer on mobile
+            _updatePage(subOption);
+          },
+        );
+      }).toList(),
+    );
+  }
+
   void _updatePage(String subOption) {
     switch (subOption) {
-      case 'Go to Approve':
-        _currentPage = AdminPendingScreen();
+      case 'View Dashboard':
+        _currentPage = DashboardPage();
+        break;
+      case 'Add Invoice':
+        _currentPage = Invoice(userEmail: "admin@ultimategcc.com");
+        break;
+      case 'View Invoices':
+        _currentPage = InvoiceReceipt(userEmail: "admin@ultimategcc.com");
+        break;
+      case 'Add RFQ':
+        _currentPage = Rfq(userEmail: "");
+        break;
+      case 'View RFQs':
+        _currentPage = RfqReceipt();
+        break;
+      case 'Add Delivery':
+        _currentPage = Delivery(userEmail: "");
+        break;
+      case 'View Delivery Notes':
+        _currentPage = DeliveryNotes();
         break;
       case 'Add Products':
         _currentPage = AddProductPage();
@@ -167,73 +203,13 @@ class _HomePageState extends State<HomePage> {
       case 'View Customers':
         _currentPage = ViewCustomers(userEmail: "", isAdmin: true);
         break;
-      case 'Add RFQ':
-        _currentPage = Rfq(userEmail: "");
-        break;
-      case 'View RFQs':
-        _currentPage = RfqReceipt();
-        break;
-      case 'Add Delivery':
-        _currentPage = Delivery(userEmail: "");
-        break;
-      case 'View Delivery Notes':
-        _currentPage = DeliveryNotes();
-        break;
-      case 'Add Invoice':
-        _currentPage = Invoice(userEmail: "admin@ultimategcc.com");
-        break;
-      case 'View Invoices':
-        _currentPage = InvoiceReceipt(userEmail: "admin@ultimategcc.com");
-        break;
       case 'Approval Pending':
         _currentPage = AdminPendingScreen();
         break;
-      case 'View Dashboard' :
-        _currentPage = DashboardPage();
-
-        break;
-
-
       default:
-        _currentPage = Container(); // Default to an empty container if no match
-        print('Unknown sub-option');
+        _currentPage = DashboardPage();
+        print("Unknown menu selected: $subOption");
     }
-    setState(() {}); // Update the UI after the page has been updated
-  }
-
-
-}
-
-class MenuOption extends StatelessWidget {
-  final String menuName;
-  final List<String> subOptions;
-  final IconData menuIcon;
-  final Color collapsedIconColor;
-  final BuildContext context;
-  final Function(String) onMenuSelected;
-
-  MenuOption(this.menuName, this.subOptions, this.menuIcon, this.collapsedIconColor, this.context, this.onMenuSelected);
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpansionTile(
-      iconColor: Colors.white,
-      collapsedIconColor: collapsedIconColor,
-      title: Row(
-        children: [
-          Icon(menuIcon, color: Colors.white),
-          SizedBox(width: 10),
-          Text(menuName, style: GoogleFonts.poppins(color: Colors.white)),
-        ],
-      ),
-      children: subOptions
-          .map((subOption) => ListTile(
-        title: Text(subOption, style: GoogleFonts.poppins(color: Colors.white70)),
-        onTap: () {
-          onMenuSelected(subOption); // Notify parent about the selected sub-option
-        },
-      ))
-          .toList(),
-    );
+    setState(() {});
   }
 }
