@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:UltimateSolutions/home_v2/homepagev2.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:UltimateSolutions/view/products/productselectionpage.dart';
@@ -35,10 +36,13 @@ class _RfqState extends State<Rfq> {
   final TextEditingController personController = TextEditingController();
   final TextEditingController unitController = TextEditingController();
   TextEditingController vatExclusiveController = TextEditingController();
+  TextEditingController attentionController = TextEditingController();
 
   List<ProductControllerGroup> products = [ProductControllerGroup()];
   String? selectedModeOfPayment;
   List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece','Each','Box'];
+  List<String> modeOfPaymentValues = ['Cash', 'Credit', 'Bank Transfer', 'Proforma Invoice'];
+
   double totalLineTotal = 0.0;
 
   final GlobalKey _globalKey = GlobalKey();
@@ -58,15 +62,30 @@ class _RfqState extends State<Rfq> {
   }
 
   Future<void> _setNextQuotationNumber() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int nextQuotationNo = prefs.getInt('quotationNo') ?? 200000; // Start from 10000 if not set
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('rfq')
+        .orderBy('timestamp', descending: true)
+        .limit(20) // Get more to filter invalid ones
+        .get();
+
+    int nextInvoiceNo = 200060;
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final raw = data['quotationNo']?.toString();
+
+      // Extract only numeric parts
+      final numericPart = int.tryParse(raw ?? '');
+
+      if (numericPart != null) {
+        nextInvoiceNo = numericPart + 1;
+        break; // Stop at the first valid one
+      }
+    }
 
     setState(() {
-      quotationNoController.text = '$nextQuotationNo';
+      quotationNoController.text = nextInvoiceNo.toString();
     });
-
-    // Increment the quotation number and save it back to SharedPreferences
-    await prefs.setInt('quotationNo', nextQuotationNo + 1);
   }
 
   @override
@@ -86,15 +105,18 @@ class _RfqState extends State<Rfq> {
 
     }
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70.0),
         child: AppBar(
           title: Text(
+
             "Enter Quotation Request",
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
+
           ),
           centerTitle: true,
-          backgroundColor: Color(0xff0C88BD),
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(40),
@@ -153,7 +175,7 @@ class _RfqState extends State<Rfq> {
               SizedBox(height: 16),
               buildTextFormField(
                 controller: personController,
-                label: 'Contact Person',
+                label: 'Attention',
               ),
               SizedBox(height: 16),
               buildTextFormField(
@@ -178,7 +200,7 @@ class _RfqState extends State<Rfq> {
               SizedBox(height: 16),
               buildTextFormField(
                 controller: enquiryReferenceController,
-                label: 'Enquiry Reference',
+                label: 'Quotation Reference',
               ),
               // SizedBox(height: 16),
               // buildTextFormField(
@@ -201,6 +223,25 @@ class _RfqState extends State<Rfq> {
                 child: Text('Add More Products'),
               ),
               SizedBox(height: 16),
+
+              buildDropdownButton(
+                label: 'Select Payment Terms',
+                value: selectedModeOfPayment,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedModeOfPayment = newValue;
+                  });
+                },
+                items: modeOfPaymentValues
+                    .map((mode) => DropdownMenuItem<String>(
+                  value: mode,
+                  child: Text(mode),
+                ))
+                    .toList(),
+              ),
+              SizedBox(height: 16),
+
+
 
               Row(
                 children: [
@@ -339,11 +380,12 @@ class _RfqState extends State<Rfq> {
         'deliveryPlace': deliveryPlaceController.text,
         'modeOfPayment': selectedModeOfPayment,
         'netAmount': netAmountController.text,
+        'attention' : personController.text,
 
         'products': productsData, // Add the list of products
       });
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: widget.userEmail)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
       print('Data submitted successfully!');
       final snackBar = SnackBar(content: const Text('Quotation Created Successfully!'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);

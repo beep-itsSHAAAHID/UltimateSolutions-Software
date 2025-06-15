@@ -1,3 +1,4 @@
+import 'package:UltimateSolutions/home_v2/homepagev2.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:UltimateSolutions/view/products/productselectionpage.dart';
@@ -63,6 +64,7 @@ class _DeliveryState extends State<Delivery> {
     final double paddingValue = isSmallScreen ? 8.0 : 16.0;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70.0),
         child: AppBar(
@@ -71,7 +73,7 @@ class _DeliveryState extends State<Delivery> {
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
           ),
           centerTitle: true,
-          backgroundColor: Color(0xff0C88BD),
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(40),
@@ -304,7 +306,7 @@ class _DeliveryState extends State<Delivery> {
       String userEmail = widget.userEmail; // Store userEmail from widget
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => SalesNav(userEmail: userEmail,)),
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
 
       final snackBar = SnackBar(content:

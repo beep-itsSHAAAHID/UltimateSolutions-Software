@@ -19,7 +19,9 @@ class _CustomerSelectionPageState extends State<CustomerSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('Select Customer'),
       ),
       body: Column(

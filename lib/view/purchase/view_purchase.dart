@@ -25,13 +25,14 @@ class _ViewPurchaseState extends State<ViewPurchase> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           "View Purchases",
           style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xff0C88BD),
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(40),

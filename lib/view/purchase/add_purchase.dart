@@ -1,3 +1,4 @@
+import 'package:UltimateSolutions/home_v2/homepagev2.dart';
 import 'package:UltimateSolutions/view/products/productselectionpage.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
@@ -61,13 +62,14 @@ class _PurchaseState extends State<Purchase> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           "Purchase",
           style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xff0C88BD),
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(40),
@@ -119,9 +121,7 @@ class _PurchaseState extends State<Purchase> {
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SalesNav(
-                          userEmail: widget.userEmail,
-                        )));
+                        builder: (context) => HomePage()));
               },
               child: Text('Submit'),
             ),

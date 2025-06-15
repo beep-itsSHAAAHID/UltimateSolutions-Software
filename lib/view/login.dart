@@ -1,3 +1,4 @@
+import 'package:UltimateSolutions/home_v2/homepagev2.dart';
 import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -167,7 +168,7 @@ class _LoginState extends State<Login> {
 
   void navigateToHomePage(String? userEmail) {
     if (userEmail != null) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: userEmail)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
     }
   }
 

@@ -9,6 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'package:UltimateSolutions/api/google_sheets_api.dart';
 
+import 'home_v2/homepagev2.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(AppInitializer());
@@ -62,6 +64,7 @@ class _AppInitializerState extends State<AppInitializer> {
     if (_isInitializing) {
       return MaterialApp(
         theme: ThemeData(
+          scaffoldBackgroundColor: Colors.white,
           useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
@@ -86,11 +89,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
+
       debugShowCheckedModeBanner: false,
       title: 'Ultimate Solutions',
+
+      // home: HomePage(),
       home: AuthenticationWrapper(userEmail: userEmail, userRole: userRole),
     );
   }
@@ -120,9 +123,9 @@ class AuthenticationWrapper extends StatelessWidget {
         if (snapshot.hasData && snapshot.data != null) {
           // User is authenticated
           if (userRole == 'admin') {
-            return SalesNav(userEmail: userEmail ?? "");
+            return HomePage();
           } else {
-            return SalesNav(userEmail: userEmail ?? "");
+            return HomePage();
           }
         } else {
           // User is not authenticated

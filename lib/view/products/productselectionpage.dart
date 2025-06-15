@@ -34,7 +34,9 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('Select Product'),
       ),
       body: Column(

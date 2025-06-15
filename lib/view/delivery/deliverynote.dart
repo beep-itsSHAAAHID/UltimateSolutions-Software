@@ -367,12 +367,12 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlueAccent,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.lightBlueAccent,
+        backgroundColor: Colors.white,
         title: Center(child: Text('Delivery Notes',style: TextStyle(
-          fontSize: 50,fontWeight: FontWeight.w700,
-          color: Colors.white
+          fontSize: 40,fontWeight: FontWeight.w700,
+          color: Colors.black
         ),)),
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -395,6 +395,7 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
                 ..sort((a, b) => (b['deliveryNoteNo'] as String).compareTo(a['deliveryNoteNo'] as String));
               var data = sortedDocuments[index].data() as Map<String, dynamic>;
               return Card(
+                color: Colors.blue,
                 elevation: 4.0,
                 margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 shape: RoundedRectangleBorder(
@@ -411,6 +412,7 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
                           'Delivery Note No: ${data['deliveryNoteNo']}',
                           style: TextStyle(
                             fontSize: 18.0,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -419,7 +421,7 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
                           'Customer: ${data['customerName']}',
                           style: TextStyle(
                             fontSize: 16.0,
-                            color: Colors.grey[800],
+                            color: Colors.white,
                           ),
                         ),
                         SizedBox(height: 8.0),
@@ -427,7 +429,7 @@ class _DeliveryNotesState extends State<DeliveryNotes> {
                           'Date: ${data['date']}',
                           style: TextStyle(
                             fontSize: 14.0,
-                            color: Colors.grey[600],
+                            color: Colors.white,
                           ),
                         ),
                       ],

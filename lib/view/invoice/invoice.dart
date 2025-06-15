@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:UltimateSolutions/home_v2/homepagev2.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:UltimateSolutions/view/products/productselectionpage.dart';
@@ -7,6 +8,7 @@ import 'package:UltimateSolutions/view/salesnav.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:translator/translator.dart';
 import '../customer/customerselection.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:UltimateSolutions/models/qrgenerator.dart';
@@ -42,6 +44,8 @@ class _InvoiceState extends State<Invoice> {
   List<String> unitDropdownValues = ['Unit', 'Roll', 'Piece', 'Each', 'Box'];
   List<String> modeOfPaymentValues = ['Cash', 'Credit', 'Bank Transfer', 'Proforma Invoice'];
   double totalLineTotal = 0.0;
+  final translator = GoogleTranslator();
+
 
   final GlobalKey _globalKey = GlobalKey();
 
@@ -55,6 +59,23 @@ class _InvoiceState extends State<Invoice> {
     }
   }
 
+  void _translateToArabic() async {
+    // Translate the customerName to Arabic
+    Translation translation = await translator.translate(customerNameController.text,  to: 'ar');
+
+    // Access the translated text from the Translation object
+    String translatedText = translation.text;
+    print(customerNameController.text);
+    print("Translated Text: ${translatedText}");
+
+
+    // Set the translated Arabic name in the arabicNameController
+    setState(() {
+      arabicNameController.text = translatedText;
+    });
+  }
+
+
   void _setCurrentDate() {
     final DateTime now = DateTime.now();
     final String formattedDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -62,25 +83,32 @@ class _InvoiceState extends State<Invoice> {
   }
 
   Future<void> _setNextInvoiceNumber() async {
-    // Fetch the last saved invoice number from Firestore
     final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('invoices')
         .orderBy('timestamp', descending: true)
-        .limit(1)
+        .limit(20) // Get more to filter invalid ones
         .get();
 
-    int nextInvoiceNo = 200060; // Default starting number
+    int nextInvoiceNo = 200060;
 
-    if (snapshot.docs.isNotEmpty) {
-      final lastInvoice = snapshot.docs.first.data() as Map<String, dynamic>;
-      final lastInvoiceNo = int.tryParse(lastInvoice['invoiceNo'] ?? '200060');
-      nextInvoiceNo = (lastInvoiceNo ?? 200060) + 1;
+    for (var doc in snapshot.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final raw = data['invoiceNo']?.toString();
+
+      // Extract only numeric parts
+      final numericPart = int.tryParse(raw ?? '');
+
+      if (numericPart != null) {
+        nextInvoiceNo = numericPart + 1;
+        break; // Stop at the first valid one
+      }
     }
 
     setState(() {
-      invoiceNoController.text = '$nextInvoiceNo';
+      invoiceNoController.text = nextInvoiceNo.toString();
     });
   }
+
 
   void _populateFields(Map<String, dynamic> data) {
     invoiceDateController.text = data['invoiceDate'] ?? '';
@@ -119,6 +147,7 @@ class _InvoiceState extends State<Invoice> {
       });
     }
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70.0),
         child: AppBar(
@@ -127,7 +156,7 @@ class _InvoiceState extends State<Invoice> {
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
           ),
           centerTitle: true,
-          backgroundColor: Color(0xff0C88BD),
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(40),
@@ -183,10 +212,24 @@ class _InvoiceState extends State<Invoice> {
                 label: 'Customer Vat Number',
               ),
               SizedBox(height: 16),
+              // buildTextFormField(
+              //   controller: arabicNameController,
+              //   label: 'Arabic Name',
+              // ),
+
               buildTextFormField(
                 controller: arabicNameController,
                 label: 'Arabic Name',
+                suffixIcon: arabicNameController.text.isEmpty
+                    ? IconButton(
+                  icon: Icon(Icons.translate),
+                  onPressed: _translateToArabic,
+                )
+                    : null,
               ),
+
+
+
               SizedBox(height: 16),
               buildDateFormField(
                 controller: invoiceDateController,
@@ -404,9 +447,10 @@ class _InvoiceState extends State<Invoice> {
         'netAmount': netAmountController.text,
         'qrCodeImageUrl': qrCodeImageUrl, // Add the QR code image URL
         'products': productsData, // Add the list of products
+        'status': 'approved',
       });
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: widget.userEmail)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
       print('Data submitted successfully!');
       final snackBar = SnackBar(content: const Text('Invoice Created Successfully!'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -425,11 +469,16 @@ class _InvoiceState extends State<Invoice> {
     required TextEditingController controller,
     required String label,
     void Function()? onTap,
+    Widget? suffixIcon,
+
   }) {
     return TextFormField(
+
       controller: controller,
       style: TextStyle(fontSize: 16),
       decoration: InputDecoration(
+        suffixIcon: suffixIcon,
+
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide(color: Colors.blue),

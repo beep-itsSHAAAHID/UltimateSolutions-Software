@@ -1,3 +1,4 @@
+import 'package:UltimateSolutions/home_v2/homepagev2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -84,7 +85,7 @@ class _AddSupplierState extends State<AddSupplier> {
         'addedBy': widget.userEmail,  // Include the user email of the person adding the supplier
       });
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => SalesNav(userEmail: widget.userEmail)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
 
     } catch (e) {
       print('Error submitting supplier data: $e');
@@ -95,12 +96,13 @@ class _AddSupplierState extends State<AddSupplier> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(70.0),
           child: AppBar(
             title: Text("Supplier", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30)),
             centerTitle: true,
-            backgroundColor: Color(0xff0C88BD),
+            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
                 bottom: Radius.circular(40),

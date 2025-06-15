@@ -38,19 +38,19 @@ class _RfqReceiptState extends State<RfqReceipt> {
     final pdf = pw.Document();
 
     final fontData =
-        await rootBundle.load("lib/assets/fonts/Poppins-Regular.ttf");
+    await rootBundle.load("lib/assets/fonts/Poppins-Regular.ttf");
     final ttfFont = pw.Font.ttf(fontData);
 
     final fontDataBold =
-        await rootBundle.load("lib/assets/fonts/Poppins-Bold.ttf");
+    await rootBundle.load("lib/assets/fonts/Poppins-Bold.ttf");
     final ttfFontBold = pw.Font.ttf(fontDataBold);
 
     final ttfArabicFont =
-        pw.Font.ttf(await rootBundle.load("lib/assets/fonts/HacenTunisia.ttf"));
+    pw.Font.ttf(await rootBundle.load("lib/assets/fonts/HacenTunisia.ttf"));
 
     List<pw.Widget> _wrapText(String text) {
       const int maxCharactersPerLine =
-          40; // Set your desired maximum characters per line
+      40; // Set your desired maximum characters per line
       List<pw.Widget> lines = [];
 
       for (int i = 0; i < text.length; i += maxCharactersPerLine) {
@@ -63,7 +63,7 @@ class _RfqReceiptState extends State<RfqReceipt> {
             text.substring(i, end),
             style: pw.TextStyle(font: ttfArabicFont),
             textDirection:
-                pw.TextDirection.rtl, // Right-to-left text direction for Arabic
+            pw.TextDirection.rtl, // Right-to-left text direction for Arabic
             textAlign: pw.TextAlign.center, // Apply the font style here
           ),
         );
@@ -91,15 +91,28 @@ class _RfqReceiptState extends State<RfqReceipt> {
     }
 
 
-    pw.Widget _buildDetailText(String label, dynamic value, {bool isBold = false, bool isCustomerName = false, bool isArabicName = false}) {
+    pw.Widget _buildDetailText(String label, dynamic value,
+        {bool isBold = false, bool isCustomerName = false, bool isArabicName = false}) {
       return pw.Table(
         border: pw.TableBorder(
-          top: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
-          bottom: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
-          left: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
-          right: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dotted),
-          horizontalInside: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dashed),
-          verticalInside: pw.BorderSide(color: pw.PdfColors.blue, width: 0.5, style: pw.BorderStyle.dashed),
+          top: pw.BorderSide(color: pw.PdfColors.blue,
+              width: 0.5,
+              style: pw.BorderStyle.dotted),
+          bottom: pw.BorderSide(color: pw.PdfColors.blue,
+              width: 0.5,
+              style: pw.BorderStyle.dotted),
+          left: pw.BorderSide(color: pw.PdfColors.blue,
+              width: 0.5,
+              style: pw.BorderStyle.dotted),
+          right: pw.BorderSide(color: pw.PdfColors.blue,
+              width: 0.5,
+              style: pw.BorderStyle.dotted),
+          horizontalInside: pw.BorderSide(color: pw.PdfColors.blue,
+              width: 0.5,
+              style: pw.BorderStyle.dashed),
+          verticalInside: pw.BorderSide(color: pw.PdfColors.blue,
+              width: 0.5,
+              style: pw.BorderStyle.dashed),
         ),
         columnWidths: {
           0: pw.FixedColumnWidth(100), // Adjust the width as needed
@@ -109,7 +122,8 @@ class _RfqReceiptState extends State<RfqReceipt> {
           pw.TableRow(
             children: [
               pw.Container(
-                padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3), // Reduce padding
+                padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                // Reduce padding
                 child: pw.Text(
                   label,
                   style: pw.TextStyle(
@@ -117,13 +131,16 @@ class _RfqReceiptState extends State<RfqReceipt> {
                     fontWeight: isBold ? pw.FontWeight.bold : null,
                     fontSize: 10, // Reduce font size
                   ),
-                  textDirection: isArabicName ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+                  textDirection: isArabicName ? pw.TextDirection.rtl : pw
+                      .TextDirection.ltr,
                   textAlign: pw.TextAlign.left,
                 ),
               ),
               pw.Container(
-                padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3), // Reduce padding
-                constraints: pw.BoxConstraints(maxWidth: 300), // Adjust maxWidth for better text wrapping
+                padding: pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                // Reduce padding
+                constraints: pw.BoxConstraints(maxWidth: 300),
+                // Adjust maxWidth for better text wrapping
                 child: pw.Text(
                   '${value ?? ''}',
                   style: pw.TextStyle(
@@ -132,10 +149,14 @@ class _RfqReceiptState extends State<RfqReceipt> {
                     letterSpacing: 0, // No letter spacing
                     fontSize: 10, // Reduce font size
                   ),
-                  textDirection: isCustomerName ? pw.TextDirection.ltr : pw.TextDirection.rtl,
-                  textAlign: pw.TextAlign.left, // Align Arabic text to the right
-                  maxLines: isCustomerName ? 3 : 2, // Allow for more lines
-                  overflow: pw.TextOverflow.visible, // Clip overflow text
+                  textDirection: isCustomerName ? pw.TextDirection.ltr : pw
+                      .TextDirection.rtl,
+                  textAlign: pw.TextAlign.left,
+                  // Align Arabic text to the right
+                  maxLines: isCustomerName ? 3 : 2,
+                  // Allow for more lines
+                  overflow: pw.TextOverflow.visible,
+                  // Clip overflow text
                   softWrap: true, // Ensure text wraps properly
                 ),
               ),
@@ -148,7 +169,8 @@ class _RfqReceiptState extends State<RfqReceipt> {
 
     pw.Widget _buildDetailsColumn(Map<String, dynamic> data) {
       return pw.Container(
-        margin: pw.EdgeInsets.only(left: 17,right: 17), // Add margins to the entire table
+        margin: pw.EdgeInsets.only(left: 17, right: 17),
+        // Add margins to the entire table
         child: pw.Table(
 
           columnWidths: {
@@ -163,10 +185,17 @@ class _RfqReceiptState extends State<RfqReceipt> {
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      _buildDetailText('Customer Name:', data['customerName'], isBold: true, isCustomerName: true),
-                      _buildDetailText(' :اسم الزبون', data['arabicName'], isBold: true, isArabicName: true),
-                      _buildDetailText('VAT Number:', data['vatNo'], isBold: true),
-                      _buildDetailText('Address:', data['address'], isBold: true),
+                      _buildDetailText(
+                          'Customer Name:', data['customerName'], isBold: true,
+                          isCustomerName: true),
+                      _buildDetailText(
+                          ' :اسم الزبون', data['arabicName'], isBold: true,
+                          isArabicName: true),
+                      // _buildDetailText('VAT Number:', data['vatNo'], isBold: true),
+                      _buildDetailText(
+                          'Attention.:', data['attention'], isBold: true),
+                      _buildDetailText(
+                          'Address:', data['address'], isBold: true),
                     ],
                   ),
                 ),
@@ -175,9 +204,15 @@ class _RfqReceiptState extends State<RfqReceipt> {
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      _buildDetailText('Payment Term:', data['modeOfPayment'], isBold: true),
-                      _buildDetailText('Quotation Date:', data['quotationDate'], isBold: true),
-                      _buildDetailText('Quotation No.:', data['quotationNo'], isBold: true),
+                      _buildDetailText(
+                          'Payment Term:', data['modeOfPayment'], isBold: true),
+                      _buildDetailText('Quote Date:', data['quotationDate'],
+                          isBold: true),
+                      _buildDetailText(
+                          'Quote No.:', data['quotationNo'], isBold: true),
+                      _buildDetailText(
+                          'Quote Reference:', data['enquiryReference'],
+                          isBold: true),
 
                     ],
                   ),
@@ -191,7 +226,7 @@ class _RfqReceiptState extends State<RfqReceipt> {
 
     // Retrieve the product details from the Firestore data
     List<Map<String, dynamic>> productList =
-        (data['products'] as List<dynamic>).cast<Map<String, dynamic>>();
+    (data['products'] as List<dynamic>).cast<Map<String, dynamic>>();
 
     // Build the table rows dynamically using Firestore data
     List<pw.TableRow> tableRows = [];
@@ -236,19 +271,46 @@ class _RfqReceiptState extends State<RfqReceipt> {
     String capitalizeWords(String input) {
       return input.replaceAllMapped(
         RegExp(r'\b\w'),
-        (match) => match.group(0)!.toUpperCase(),
+            (match) => match.group(0)!.toUpperCase(),
       );
     }
 
 // Add a function to get net amount in words
     String _convertChunk(int number) {
       final List<String> units = [
-        '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
-        'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
+        '',
+        'one',
+        'two',
+        'three',
+        'four',
+        'five',
+        'six',
+        'seven',
+        'eight',
+        'nine',
+        'ten',
+        'eleven',
+        'twelve',
+        'thirteen',
+        'fourteen',
+        'fifteen',
+        'sixteen',
+        'seventeen',
+        'eighteen',
+        'nineteen'
       ];
 
       final List<String> tens = [
-        '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
+        '',
+        '',
+        'twenty',
+        'thirty',
+        'forty',
+        'fifty',
+        'sixty',
+        'seventy',
+        'eighty',
+        'ninety'
       ];
 
       if (number == 0) return '';
@@ -256,9 +318,11 @@ class _RfqReceiptState extends State<RfqReceipt> {
       if (number < 20) {
         return units[number];
       } else if (number < 100) {
-        return tens[number ~/ 10] + (number % 10 != 0 ? ' ${units[number % 10]}' : '');
+        return tens[number ~/ 10] +
+            (number % 10 != 0 ? ' ${units[number % 10]}' : '');
       } else {
-        return units[number ~/ 100] + ' hundred' + (number % 100 != 0 ? ' ' + _convertChunk(number % 100) : '');
+        return units[number ~/ 100] + ' hundred' +
+            (number % 100 != 0 ? ' ' + _convertChunk(number % 100) : '');
       }
     }
 
@@ -266,12 +330,39 @@ class _RfqReceiptState extends State<RfqReceipt> {
       if (number == 0) return 'zero';
 
       final List<String> units = [
-        '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
-        'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
+        '',
+        'one',
+        'two',
+        'three',
+        'four',
+        'five',
+        'six',
+        'seven',
+        'eight',
+        'nine',
+        'ten',
+        'eleven',
+        'twelve',
+        'thirteen',
+        'fourteen',
+        'fifteen',
+        'sixteen',
+        'seventeen',
+        'eighteen',
+        'nineteen'
       ];
 
       final List<String> tens = [
-        '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
+        '',
+        '',
+        'twenty',
+        'thirty',
+        'forty',
+        'fifty',
+        'sixty',
+        'seventy',
+        'eighty',
+        'ninety'
       ];
 
       final List<String> scales = [
@@ -294,14 +385,18 @@ class _RfqReceiptState extends State<RfqReceipt> {
     }
 
     String _getNetAmountInWords(Map<String, dynamic> data) {
-      double netAmountDouble = double.parse(data['netAmount']?.toString() ?? '0');
+      double netAmountDouble = double.parse(
+          data['netAmount']?.toString() ?? '0');
       int netAmountInt = netAmountDouble.truncate();
-      int halalas = ((netAmountDouble - netAmountInt) * 100).toInt(); // Extract halalas
+      int halalas = ((netAmountDouble - netAmountInt) * 100)
+          .toInt(); // Extract halalas
 
       String netAmountInWords = _convertNumberToWords(netAmountInt);
       String halalasInWords = _convertNumberToWords(halalas);
 
-      String netAmountText = '${capitalizeWords(netAmountInWords)} Saudi Riyals and ${capitalizeWords(halalasInWords)} Halalas';
+      String netAmountText = '${capitalizeWords(
+          netAmountInWords)} Saudi Riyals and ${capitalizeWords(
+          halalasInWords)} Halalas';
       return netAmountText;
     }
 
@@ -380,7 +475,8 @@ class _RfqReceiptState extends State<RfqReceipt> {
                 margin: pw.EdgeInsets.symmetric(horizontal: 20.0),
                 child: pw.Table(
                   border: pw.TableBorder.all(
-                      style: pw.BorderStyle.dashed, color: pw.PdfColors.blueAccent),
+                      style: pw.BorderStyle.dashed,
+                      color: pw.PdfColors.blueAccent),
                   children: tableRows,
                 ),
               ),
@@ -406,7 +502,7 @@ class _RfqReceiptState extends State<RfqReceipt> {
                           _buildTableCell('Gross Amount:'),
                           _buildTableCell(
                             (double.parse(
-                                    data['totalWithoutVat']?.toString() ?? '0'))
+                                data['totalWithoutVat']?.toString() ?? '0'))
                                 .toStringAsFixed(2),
                           ),
                         ],
@@ -417,8 +513,8 @@ class _RfqReceiptState extends State<RfqReceipt> {
                           _buildTableCell('Total VAT(15%):'),
                           _buildTableCell(
                             (double.parse(data['totalWithoutVat']?.toString() ??
-                                        '0') *
-                                    0.15)
+                                '0') *
+                                0.15)
                                 .toStringAsFixed(2),
                           ),
                         ],
@@ -495,127 +591,103 @@ class _RfqReceiptState extends State<RfqReceipt> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlueAccent,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.lightBlueAccent,
-        title: Center(
-            child: Text(
+        backgroundColor: Colors.white,
+        title: const Text(
           'Quotation Notes',
           style: TextStyle(
-              color: Colors.white, fontSize: 50, fontWeight: FontWeight.w700),
-        )),
+            color: Colors.black,
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _invoiceStream,
+        stream: FirebaseFirestore.instance
+            .collection('rfq')
+            .orderBy('timestamp', descending: true)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
 
           if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
 
-          var documents = snapshot.data!.docs;
+          final docs = snapshot.data!.docs;
+
+          if (docs.isEmpty) {
+            return const Center(
+              child: Text(
+                'No quotations available.',
+                style: TextStyle(fontSize: 18),
+              ),
+            );
+          }
 
           return ListView.builder(
-            itemCount: documents.length,
+            itemCount: docs.length,
             itemBuilder: (context, index) {
-              var sortedDocuments = documents.toList()
-                ..sort((a, b) => (b['quotationNo'] as String)
-                    .compareTo(a['quotationNo'] as String));
-              var data = sortedDocuments[index].data() as Map<String, dynamic>;
-              var documentId =
-                  sortedDocuments[index].id; // Retrieve document ID
+              final doc = docs[index];
+              final data = doc.data() as Map<String, dynamic>;
+              final documentId = doc.id;
+
               return Card(
-                elevation: 4.0,
-                margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                color: Colors.deepPurple,
+                elevation: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: InkWell(
-                  onTap: () async => await _generatePDF(data),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
+                  onTap: () => _generatePDF(data),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Quotation NO: ${data['quotationNo']}',
-                                style: TextStyle(
-                                  fontSize: 18.0,
+                                'Quotation No: ${data['quotationNo'] ?? 'N/A'}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 8.0),
+                              const SizedBox(height: 8),
                               Text(
-                                'Customer: ${data['customerName']}',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.grey[800],
+                                'Customer: ${data['customerName'] ?? 'N/A'}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
                                 ),
                               ),
-                              SizedBox(height: 8.0),
+                              const SizedBox(height: 8),
                               Text(
-                                'Date: ${data['quotationDate']}',
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.grey[600],
+                                'Date: ${data['quotationDate'] ?? 'N/A'}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white70,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () async {
-                          bool confirmDelete = await showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Confirm Delete"),
-                                content: Text(
-                                    "Are you sure you want to delete this quotation?"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop(
-                                          false); // Return false if cancel is pressed
-                                    },
-                                    child: Text("Cancel"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop(
-                                          true); // Return true if yes is pressed
-                                    },
-                                    child: Text("Yes"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-
-                          if (confirmDelete == true) {
-                            await FirebaseFirestore.instance
-                                .collection('rfq')
-                                .doc(
-                                    documentId) // Use the retrieved document ID here
-                                .delete();
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Quotation deleted'),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.white),
+                          onPressed: () =>
+                              _confirmAndDeleteQuotation(context, documentId),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -625,4 +697,37 @@ class _RfqReceiptState extends State<RfqReceipt> {
       ),
     );
   }
+
+  Future<void> _confirmAndDeleteQuotation(BuildContext context,
+      String documentId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) =>
+          AlertDialog(
+            title: const Text("Confirm Delete"),
+            content: const Text(
+                "Are you sure you want to delete this quotation?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text("Yes"),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm == true) {
+      await FirebaseFirestore.instance.collection('rfq')
+          .doc(documentId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Quotation deleted')),
+      );
+    }
+  }
 }
+

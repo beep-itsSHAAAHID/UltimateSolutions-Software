@@ -20,13 +20,14 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           "Add Product",
           style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xff0C88BD),
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(40),

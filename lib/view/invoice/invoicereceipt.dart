@@ -583,142 +583,143 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
 
               //header image
 
-              // pw.Container(
-              //   height: 100,
-              //   decoration: pw.BoxDecoration(
-              //     color: pw.PdfColors.red,
-              //     borderRadius: pw.BorderRadius.circular(20),
-              //   ),
-              //   child: pw.FittedBox(
-              //     fit: pw.BoxFit.fill,
-              //     alignment: pw.Alignment.topCenter,
-              //     child: headerImage,
-              //   ),
-              // ),
+              pw.Container(
+                height: 100,
+                decoration: pw.BoxDecoration(
+                  color: pw.PdfColors.red,
+                  borderRadius: pw.BorderRadius.circular(20),
+                ),
+                child: pw.FittedBox(
+                  fit: pw.BoxFit.fill,
+                  alignment: pw.Alignment.topCenter,
+                  child: headerImage,
+                ),
+              ),
 
               //blue line
 
-              // pw.Row(
-              //   children: [
-              //     pw.Expanded(
-              //       child: pw.Container(
-              //         margin: pw.EdgeInsets.symmetric(horizontal: 20),
-              //         child: pw.Container(
-              //           margin: pw.EdgeInsets.symmetric(vertical: 5),
-              //           color: pw.PdfColors.blue200,
-              //           height: 5,
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
+              pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Container(
+                      margin: pw.EdgeInsets.symmetric(horizontal: 20),
+                      child: pw.Container(
+                        margin: pw.EdgeInsets.symmetric(vertical: 5),
+                        color: pw.PdfColors.blue200,
+                        height: 5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
               //tax invoice text with arabic
 
-              // pw.Container(
-              //   margin: pw.EdgeInsets.symmetric(horizontal: 20),
-              //   child: pw.Center(
-              //     child: pw.Text(
-              //       'TAX INVOICE   فاتورة الضريبة',
-              //       style: pw.TextStyle(
-              //           font: ttfArabicFont, fontSize: 18, letterSpacing: 2),
-              //       textDirection: pw.TextDirection
-              //           .rtl, // Set text direction to right-to-left
-              //     ),
-              //   ),
-              // ),
+              pw.Container(
+                margin: pw.EdgeInsets.symmetric(horizontal: 20),
+                child: pw.Center(
+                  child: pw.Text(
+                    'TAX INVOICE   فاتورة الضريبة',
+                    style: pw.TextStyle(
+                        font: ttfArabicFont, fontSize: 18, letterSpacing: 2),
+                    textDirection: pw.TextDirection
+                        .rtl, // Set text direction to right-to-left
+                  ),
+                ),
+              ),
 
               //orange line
 
-              // pw.Container(
-              //   margin: pw.EdgeInsets.symmetric(horizontal: 20),
-              //   child: pw.Container(
-              //     margin: pw.EdgeInsets.symmetric(vertical: 5),
-              //     color: pw.PdfColors.orange200,
-              //     height: 5,
+              pw.Container(
+                margin: pw.EdgeInsets.symmetric(horizontal: 20),
+                child: pw.Container(
+                  margin: pw.EdgeInsets.symmetric(vertical: 5),
+                  color: pw.PdfColors.orange200,
+                  height: 5,
+                ),
+              ),
+
+
+              // pw.Padding(
+              //   padding: const pw.EdgeInsets.symmetric(
+              //       horizontal: 30, vertical: 20), // Added padding
+              //   child: pw.Row(
+              //     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              //     crossAxisAlignment: pw.CrossAxisAlignment.start,
+              //     children: [
+                    // Left side - English details
+                    // pw.Column(
+                    //   crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    //   children: [
+                    //     buildLetterText('Building NO.', '1234'),
+                    //     buildLetterText('Secondary NO.', '5678'),
+                    //     buildLetterText('Postal Code', '12345'),
+                    //     buildLetterText('District Name', 'Al Olaya'),
+                    //     buildLetterText('City Name', 'Riyadh'),
+                    //     buildLetterText('Street Name', 'King Fahd Rd'),
+                    //     buildLetterText('CR NO.', '1010101010'),
+                    //     buildLetterText('VAT NO.', '1234567890123'),
+                    //     buildLetterText('Nation', 'Saudi Arabia'),
+                    //   ],
+                    // ),
+
+                    // Center - Logo
+                    // pw.Container(
+                    //   width: 80, // Adjust size as needed
+                    //   height: 80,
+                    //   child: pw.Column(
+                    //       mainAxisAlignment: pw.MainAxisAlignment.center,
+                    //       crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    //       children: [
+                            //
+                            // pw.Container(
+                            //   width: 60,
+                            //   height: 60,
+                            //   child: logoImage,
+                            // ),
+                    // pw.SizedBox(height: 5), // Space between the image and the text
+                    // pw.Text(
+                    //   'TAX INVOICE',
+                    //   style: pw.TextStyle(
+                    //     font: ttfFontBold, // Use your desired font
+                    //     fontSize: 10, // Adjust the font size
+                    //     fontWeight: pw.FontWeight.bold,
+                    //   ),
+                    // ),
+                    // pw.Text(
+                    //   'فاتورة ضريبية', // Arabic translation of "TAX INVOICE"
+                    //   style: pw.TextStyle(
+                    //     font: ttfArabicFont, // Use Arabic font
+                    //     fontSize: 10, // Adjust the font size
+                    //     fontWeight: pw.FontWeight.bold,
+                    //   ),
+                    //   textDirection: pw.TextDirection.rtl, // Set the text direction for Arabic
+                    // ),
+              //     ],
               //   ),
               // ),
 
 
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(
-                    horizontal: 30, vertical: 20), // Added padding
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    // Left side - English details
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        buildLetterText('Building NO.', '1234'),
-                        buildLetterText('Secondary NO.', '5678'),
-                        buildLetterText('Postal Code', '12345'),
-                        buildLetterText('District Name', 'Al Olaya'),
-                        buildLetterText('City Name', 'Riyadh'),
-                        buildLetterText('Street Name', 'King Fahd Rd'),
-                        buildLetterText('CR NO.', '1010101010'),
-                        buildLetterText('VAT NO.', '1234567890123'),
-                        buildLetterText('Nation', 'Saudi Arabia'),
-                      ],
-                    ),
-
-                    // Center - Logo
-                    pw.Container(
-                      width: 80, // Adjust size as needed
-                      height: 80,
-                      child: pw.Column(
-                          mainAxisAlignment: pw.MainAxisAlignment.center,
-                          crossAxisAlignment: pw.CrossAxisAlignment.center,
-                          children: [
-
-                            pw.Container(
-                              width: 60,
-                              height: 60,
-                              child: logoImage,
-                            ),
-                    pw.SizedBox(height: 5), // Space between the image and the text
-                    pw.Text(
-                      'TAX INVOICE',
-                      style: pw.TextStyle(
-                        font: ttfFontBold, // Use your desired font
-                        fontSize: 10, // Adjust the font size
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                    ),
-                    pw.Text(
-                      'فاتورة ضريبية', // Arabic translation of "TAX INVOICE"
-                      style: pw.TextStyle(
-                        font: ttfArabicFont, // Use Arabic font
-                        fontSize: 10, // Adjust the font size
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                      textDirection: pw.TextDirection.rtl, // Set the text direction for Arabic
-                    ),
-                  ],
-                ),
-              ),
-
-
               // Right side - Arabic text (Fully Arabic, including values)
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.end,
-                      children: [
-                        buildLetterText('رقم المبنى', '١٢٣٤', rtl: true, ttfArabicFont: ttfArabicFont),
-                        buildLetterText('الرقم الثانوي', '٥٦٧٨', rtl: true, ttfArabicFont: ttfArabicFont),
-                        buildLetterText('الرمز البريدي', '١٢٣٤٥', rtl: true, ttfArabicFont: ttfArabicFont),
-                        buildLetterText('اسم الحي', 'العليا', rtl: true, ttfArabicFont: ttfArabicFont),
-                        buildLetterText('اسم المدينة', 'الرياض', rtl: true, ttfArabicFont: ttfArabicFont),
-                        buildLetterText('اسم الشارع', 'طريق الملك فهد', rtl: true, ttfArabicFont: ttfArabicFont),
-                        buildLetterText('رقم السجل التجاري', '١٠١٠١٠١٠١٠', rtl: true, ttfArabicFont: ttfArabicFont),
-                        buildLetterText('الرقم الضريبي', '١٢٣٤٥٦٧٨٩٠١٢٣', rtl: true, ttfArabicFont: ttfArabicFont),
-                        buildLetterText('الدولة', 'المملكة العربية السعودية', rtl: true, ttfArabicFont: ttfArabicFont),
+              //       pw.Column(
+              //         crossAxisAlignment: pw.CrossAxisAlignment.end,
+              //         children: [
+              //           buildLetterText('رقم المبنى', '١٢٣٤', rtl: true, ttfArabicFont: ttfArabicFont),
+              //           buildLetterText('الرقم الثانوي', '٥٦٧٨', rtl: true, ttfArabicFont: ttfArabicFont),
+              //           buildLetterText('الرمز البريدي', '١٢٣٤٥', rtl: true, ttfArabicFont: ttfArabicFont),
+              //           buildLetterText('اسم الحي', 'العليا', rtl: true, ttfArabicFont: ttfArabicFont),
+              //           buildLetterText('اسم المدينة', 'الرياض', rtl: true, ttfArabicFont: ttfArabicFont),
+              //           buildLetterText('اسم الشارع', 'طريق الملك فهد', rtl: true, ttfArabicFont: ttfArabicFont),
+              //           buildLetterText('رقم السجل التجاري', '١٠١٠١٠١٠١٠', rtl: true, ttfArabicFont: ttfArabicFont),
+              //           buildLetterText('الرقم الضريبي', '١٢٣٤٥٦٧٨٩٠١٢٣', rtl: true, ttfArabicFont: ttfArabicFont),
+              //           buildLetterText('الدولة', 'المملكة العربية السعودية', rtl: true, ttfArabicFont: ttfArabicFont),
+              //
+              //         ],
+              //       ),
 
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              //     ],
+              //   ),
+              // ),
 
 
               pw.SizedBox(height: 5),
@@ -900,15 +901,15 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlueAccent,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.lightBlueAccent,
+        backgroundColor: Colors.white,
         title: Center(
           child: Text(
             'Invoice Receipts',
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 50,
+              color: Colors.black,
+              fontSize: 40,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -943,6 +944,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
               var data = sortedDocuments[index].data() as Map<String, dynamic>;
               var documentId = sortedDocuments[index].id;
               return Card(
+                color: Colors.black,
                 elevation: 4.0,
                 margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 shape: RoundedRectangleBorder(
@@ -961,6 +963,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                               Text(
                                 'Invoice No: ${data['invoiceNo']}',
                                 style: TextStyle(
+                                  color: Colors.white,
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -970,7 +973,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                                 'Customer: ${data['customerName']}',
                                 style: TextStyle(
                                   fontSize: 16.0,
-                                  color: Colors.grey[800],
+                                  color: Colors.white,
                                 ),
                               ),
                               SizedBox(height: 8.0),
@@ -978,7 +981,7 @@ class _InvoiceReceiptState extends State<InvoiceReceipt> {
                                 'Date: ${data['invoiceDate']}',
                                 style: TextStyle(
                                   fontSize: 14.0,
-                                  color: Colors.grey[600],
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
