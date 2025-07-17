@@ -5,6 +5,7 @@ import 'package:UltimateSolutions/approvereqs.dart';
 import 'package:UltimateSolutions/view/activity/checkins.dart';
 import 'package:UltimateSolutions/view/products/add_products.dart';
 import 'package:UltimateSolutions/view/products/productselectionpage.dart';
+import '../payments/collection_home.dart';
 import '../view/activity/addactivity.dart';
 import '../view/customer/addcustomer.dart';
 import '../view/customer/customers.dart';
@@ -117,6 +118,9 @@ class _HomePageState extends State<HomePage> {
       _menuTile('View Activity', ['View Activity', 'View Check-ins'], Iconsax.activity, Colors.amber),
       _menuTile('Add Customer', ['Add Customer', 'View Customers'], Iconsax.profile, Colors.green),
       _menuTile('Approvals', ['Approval Pending'], Iconsax.verify, Colors.deepOrange),
+      _menuTile('Collections', ['Collections'], Iconsax.money, Colors.deepOrange),
+
+      SizedBox(height: 30,),
       Padding(
         padding: const EdgeInsets.all(12.0),
         child: Align(
@@ -205,6 +209,9 @@ class _HomePageState extends State<HomePage> {
         break;
       case 'Approval Pending':
         _currentPage = AdminPendingScreen();
+        break;
+      case 'Collections':
+        _currentPage = PaymentCollections();
         break;
       default:
         _currentPage = DashboardPage();
