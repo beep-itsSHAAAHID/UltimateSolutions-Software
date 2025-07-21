@@ -1,3 +1,4 @@
+import 'package:UltimateSolutions/view/expenses/view_expenses.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
@@ -115,6 +116,7 @@ class _HomePageState extends State<HomePage> {
       _menuTile('Products', ['Add Products', 'View Products'], Iconsax.shopping_cart, Colors.blue),
       _menuTile('Purchase', ['Add Purchase', 'View Purchase'], Iconsax.shopping_cart, Colors.teal),
       _menuTile('Suppliers', ['Add Supplier'], Iconsax.people, Colors.red),
+      _menuTile('Expenses', ['View Expenses'], Iconsax.wallet, Colors.green),
       _menuTile('View Activity', ['View Activity', 'View Check-ins'], Iconsax.activity, Colors.amber),
       _menuTile('Add Customer', ['Add Customer', 'View Customers'], Iconsax.profile, Colors.green),
       _menuTile('Approvals', ['Approval Pending'], Iconsax.verify, Colors.deepOrange),
@@ -177,9 +179,6 @@ class _HomePageState extends State<HomePage> {
       case 'Add Delivery':
         _currentPage = Delivery(userEmail: "");
         break;
-      case 'View Delivery Notes':
-        _currentPage = DeliveryNotes();
-        break;
       case 'Add Products':
         _currentPage = AddProductPage();
         break;
@@ -194,6 +193,9 @@ class _HomePageState extends State<HomePage> {
         break;
       case 'Add Supplier':
         _currentPage = AddSupplier(userEmail: "");
+        break;
+      case 'View Expenses':
+        _currentPage = ViewExpensesPage();
         break;
       case 'View Activity':
         _currentPage = UserListPage();
