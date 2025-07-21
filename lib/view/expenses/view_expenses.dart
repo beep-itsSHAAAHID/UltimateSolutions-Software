@@ -511,212 +511,227 @@ class _ViewExpensesPageState extends State<ViewExpensesPage> {
   }
 
   Widget _buildResponsiveTable(List<QueryDocumentSnapshot> expenses) {
-    return DataTable(
-      headingRowColor: MaterialStateProperty.all(Color(0xFFF1F5F9)),
-      dataRowColor: MaterialStateProperty.resolveWith((states) {
-        return states.contains(MaterialState.hovered)
-            ? Color(0xFFF8FAFC)
-            : Colors.white;
-      }),
-      border: TableBorder(
-        horizontalInside: BorderSide(color: Color(0xFFE2E8F0), width: 1),
-      ),
-      headingTextStyle: TextStyle(
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF1E293B),
-        fontSize: 14,
-      ),
-      dataTextStyle: TextStyle(
-        color: Color(0xFF475569),
-        fontSize: 13,
-      ),
-      columnSpacing: 20,
-      headingRowHeight: 56,
-      dataRowHeight: 72,
-      columns: [
-        DataColumn(
-          label: Expanded(
-            child: Row(
-              children: [
-                Icon(Icons.schedule, size: 16, color: Color(0xFFF59E0B)),
-                SizedBox(width: 4),
-                Text('Date & Time'),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: DataTable(
+              headingRowColor: MaterialStateProperty.all(Color(0xFFF1F5F9)),
+              dataRowColor: MaterialStateProperty.resolveWith((states) {
+                return states.contains(MaterialState.hovered)
+                    ? Color(0xFFF8FAFC)
+                    : Colors.white;
+              }),
+              border: TableBorder(
+                horizontalInside: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+              ),
+              headingTextStyle: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
+                fontSize: 14,
+              ),
+              dataTextStyle: TextStyle(
+                color: Color(0xFF475569),
+                fontSize: 13,
+              ),
+              columnSpacing: 16, // Reduced spacing to help with smaller screens
+              headingRowHeight: 56,
+              dataRowHeight: 72,
+              columns: [
+                DataColumn(
+                  label: Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.schedule, size: 16, color: Color(0xFFF59E0B)),
+                        SizedBox(width: 4),
+                        Flexible(child: Text('Date', overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.person, size: 16, color: Color(0xFF06B6D4)),
+                        SizedBox(width: 4),
+                        Flexible(child: Text('User', overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.category, size: 16, color: Color(0xFFEF4444)),
+                        SizedBox(width: 4),
+                        Flexible(child: Text('Type', overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.description, size: 16, color: Color(0xFF3B82F6)),
+                        SizedBox(width: 4),
+                        Flexible(child: Text('Details', overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.note, size: 16, color: Color(0xFF8B5CF6)),
+                        SizedBox(width: 4),
+                        Flexible(child: Text('Remarks', overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.payments, size: 16, color: Color(0xFF10B981)),
+                        SizedBox(width: 4),
+                        Flexible(child: Text('Amount', overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
+                  ),
+                ),
               ],
-            ),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Row(
-              children: [
-                Icon(Icons.person, size: 16, color: Color(0xFF06B6D)),
-                SizedBox(width: 4),
-                Text('User'),
-              ],
-            ),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Row(
-              children: [
-                Icon(Icons.category, size: 16, color: Color(0xFFEF4444)),
-                SizedBox(width: 4),
-                Text('Type'),
-              ],
-            ),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Row(
-              children: [
-                Icon(Icons.description, size: 16, color: Color(0xFF3B82F6)),
-                SizedBox(width: 4),
-                Text('Details'),
-              ],
-            ),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Row(
-              children: [
-                Icon(Icons.note, size: 16, color: Color(0xFF8B5CF6)),
-                SizedBox(width: 4),
-                Text('Remarks'),
-              ],
-            ),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Row(
-              children: [
-                Icon(Icons.payments, size: 16, color: Color(0xFF10B981)),
-                SizedBox(width: 4),
-                Text('Amount'),
-              ],
-            ),
-          ),
-        ),
-      ],
-      rows: expenses.map<DataRow>((expense) {
-        final amount = double.tryParse(expense['amount'].toString()) ?? 0;
-        final timestamp = expense['timestamp'] as Timestamp;
-        final date = timestamp.toDate();
+              rows: expenses.map<DataRow>((expense) {
+                final amount = double.tryParse(expense['amount'].toString()) ?? 0;
+                final timestamp = expense['timestamp'] as Timestamp;
+                final date = timestamp.toDate();
 
-        return DataRow(
-          cells: [
-            DataCell(
-              Container(
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateFormat('MMM dd, yyyy').format(date),
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      SizedBox(
+                        width: constraints.maxWidth * 0.15, // Dynamic width
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              DateFormat('MMM dd, yyyy').format(date),
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              DateFormat('hh:mm a').format(date),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    Text(
-                      DateFormat('hh:mm a').format(date),
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
+                    DataCell(
+                      SizedBox(
+                        width: constraints.maxWidth * 0.2,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              expense['user_name'] ?? 'Unknown',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              expense['user_email'] ?? 'Unknown',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      SizedBox(
+                        width: constraints.maxWidth * 0.1,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _getTypeColor(expense['type'] ?? 'N/A').withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            expense['type'] ?? 'N/A',
+                            style: TextStyle(
+                              color: _getTypeColor(expense['type'] ?? 'N/A'),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      SizedBox(
+                        width: constraints.maxWidth * 0.2,
+                        child: Text(
+                          expense['carChargeDetails'] ?? 'No details',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      SizedBox(
+                        width: constraints.maxWidth * 0.2,
+                        child: Text(
+                          expense['remarks'] ?? 'No remarks',
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: TextStyle(fontSize: 13),
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      SizedBox(
+                        width: constraints.maxWidth * 0.15,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF10B981).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            NumberFormat.currency(locale: 'en_US', symbol: 'SAR ', decimalDigits: 2).format(amount),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF059669),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
                     ),
                   ],
-                ),
-              ),
+                );
+              }).toList(),
             ),
-            DataCell(
-              Container(
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      expense['user_name'] ?? 'Unknown',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      expense['user_email'] ?? 'Unknown',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            DataCell(
-              Container(
-                width: double.infinity,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getTypeColor(expense['type'] ?? 'N/A').withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    expense['type'] ?? 'N/A',
-                    style: TextStyle(
-                      color: _getTypeColor(expense['type'] ?? 'N/A'),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            DataCell(
-              Container(
-                width: double.infinity,
-                child: Text(
-                  expense['carChargeDetails'] ?? 'No details',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-              ),
-            ),
-            DataCell(
-              Container(
-                width: 200,
-                child: Text(
-                  expense['remarks'] ?? 'No remarks',
-                  softWrap: true,
-                  overflow: TextOverflow.visible,
-                  style: TextStyle(fontSize: 13),
-                ),
-              ),
-            ),
-            DataCell(
-              Container(
-                width: double.infinity,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF10B981).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    NumberFormat.currency(locale: 'en_US', symbol: 'SAR ', decimalDigits: 2).format(amount),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF059669),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         );
-      }).toList(),
+      },
     );
   }
 
